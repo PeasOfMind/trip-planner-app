@@ -1,0 +1,16 @@
+{
+  "name": "trip-planner-app",
+  "version": "1.0.0",
+  "description": "\"App that stores upcoming trip plans in one place\"",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.16.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha --exit",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
