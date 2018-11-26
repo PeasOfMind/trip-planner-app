@@ -7,6 +7,27 @@
     <title>Trip Planner App</title>
 </head>
 <body>
-    <h1>Hello World!</h1>
+    <header>
+        <h1>Plan Your Trip</h1>
+    </header>
+    <div id="login-page">
+        <form id="login" class="js-login-form">
+            <label for="email">Email</label>
+            <input name="email" type="text" id="js-email">
+            <label for="password">Password</label>
+            <input name="password" type="text" id="js-password">
+            <input type="submit" value="Log In">
+        </form>
+        <p>New User?</p>
+        <button id="signup-redirect">Sign Up Here</button>
+    </div>
+    <div id="active-trips" hidden>
+    </div>
+    <div id="current-trip" hidden>
+    </div>
+    <button id="logout-button" class="js-logout" hidden>Log Out</button>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+    <script type="text/javascript" src="client.js"></script>
 </body>
 </html>
