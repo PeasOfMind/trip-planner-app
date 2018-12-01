@@ -85,6 +85,45 @@ function editDatabase(callback, id, inputData, index){
     callback(MOCK_TRIP_DATA, id, inputData, index);
 }
 
+function getFormData(callback, id, index){
+    callback(MOCK_TRIP_DATA, id, index);
+}
+
+function updateAndDisplayItemDetails(data, id, inputData, index){
+    for (let i = 0; i < data.trips.length; i++) {
+        let currentTrip = data.trips[i];
+        if (currentTrip.id === id){
+            const currentItem = currentTrip.packingList[index];
+            currentItem.item = inputData.find('.js-item').val();
+            $(`li[data-list-index=${index}]`).empty()
+            .text(currentItem.item)
+            .append('<button class="js-edit item">Edit Item</button>' +
+            '<button class="js-delete-item">Delete Item</button>');
+        }
+    }
+}
+
+function prefillItemForm(data, id, index){
+    //fill in values with current item details
+    for (let i = 0; i < data.trips.length; i++){
+        let currentTrip = data.trips[i];
+        if (currentTrip.id === id){
+            $(`li[data-list-index=${index}]`).find('.js-item')
+            .val(currentTrip.packingList[index].item);           
+        }
+    }
+}
+
+//display the item as an editable input
+function getAndDisplayItemForm(id, index){
+    $(`li[data-list-index=${index}]`).empty().append(`
+    <form class="item-form">
+    <input type="text" class="js-item">
+    <input type="submit" class="js-submit-item" value="Submit Edits">
+    </form>`);
+    getFormData(prefillItemForm, id, index);
+}
+
 //update place details in database
 function updateAndDisplayPlaceDetails(data, id, inputData, index){
     for (let i = 0; i < data.trips.length; i++) {
@@ -119,10 +158,6 @@ function updateAndDisplayTripDetails(data, id){
     }
 }
 
-function getFormData(callback, id, index){
-    callback(MOCK_TRIP_DATA, id, index);
-}
-
 function prefillPlaceForm(data, id, index){
     //fill in values with current place details
     const currentForm = $(`div[data-place-index='${index}']`);
@@ -155,7 +190,7 @@ function prefillDetailsForm(data, id){
 function displayListOptions(){
     $('button.list').remove();
     $('#packing-list').prepend('<button id="js-add-item">Add Item</button>');
-    $('#item-list li').append('<button class="js-edit-item">Edit Item</button>' +
+    $('#item-list li').append('<button class="js-edit item">Edit Item</button>' +
     '<button class="js-delete-item">Delete Item</button>');
 }
 
@@ -296,20 +331,17 @@ function getAndDisplayActiveTrips(){
     getActiveTrips(displayActiveTrips);
 }
 
-function watchEditPage(){
-    $('#current-trip').on('click', 'button.js-edit', (event) => {
-        event.preventDefault();
-        const selected = $(event.currentTarget);
-        const selectedId = selected.parents('#current-trip').attr('data-id');
-        if (selected.hasClass('details')){
-            getAndDisplayDetailsForm(selectedId);
-        } else if (selected.hasClass('place')){
-            const placeIndex = selected.parent('div').attr('data-place-index');
-            getAndDisplayPlaceForm(selectedId, placeIndex);
-        } else if (selected.hasClass('list')){
-            displayListOptions();
+//delete and refresh database
+function deleteAndRefresh(id){
+    for (let index = 0; index < data.trips.length; index++){
+        let currentTrip = data.trips[index];
+        if (currentTrip.id === id){
+            data.trips.splice(index, 1);
         }
-    });
+    }
+}
+
+function watchForSubmits(){
     //check to see if edits are submitted for trip details
     $('#current-trip').on('submit','.js-details-form',(event) => {
         event.preventDefault();
@@ -319,15 +351,48 @@ function watchEditPage(){
         // } else if (selected.hasClass('js-submit-place')){
         //     //update place details in database
     });
+
     //check to see if edits are submitted for place details
     $('#current-trip').on('submit', '.js-place-form', (event) => {
         event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
         const placeIndex = selected.parent('div').attr('data-place-index');
-        console.log(selected.find('.js-place-name').val());
         editDatabase(updateAndDisplayPlaceDetails, selectedId, selected, placeIndex);
-    })
+    });
+
+    //check to see if any packing list items have been edited
+    $('#current-trip').on('submit', '.item-form', (event) =>{
+        event.preventDefault();
+        const selected = $(event.currentTarget);
+        const selectedId = selected.parents('#current-trip').attr('data-id');
+        const itemIndex = selected.parent('li').attr('data-list-index');
+        editDatabase(updateAndDisplayItemDetails, selectedId, selected, itemIndex);
+    });
+}
+
+function watchEditPage(){
+    $('#current-trip').on('click', 'button.js-edit', (event) => {
+        event.preventDefault();
+        const selected = $(event.currentTarget);
+        const selectedId = selected.parents('#current-trip').attr('data-id');
+        if (selected.hasClass('details')){
+            //edit the trip details
+            getAndDisplayDetailsForm(selectedId);
+        } else if (selected.hasClass('place')){
+            //edit the place details for one place
+            const placeIndex = selected.parent('div').attr('data-place-index');
+            getAndDisplayPlaceForm(selectedId, placeIndex);
+        } else if (selected.hasClass('list')){
+            //edit the packing list
+            displayListOptions();
+        } else if (selected.hasClass('item')){
+            //edit an item on the packing list
+            const itemIndex = selected.parent('li').attr('data-list-index');
+            console.log('itemIndex is:', itemIndex);
+            getAndDisplayItemForm(selectedId, itemIndex);
+        }
+    });
 }
 
 function watchViewPage(){
@@ -358,7 +423,7 @@ function watchDashboard(){
             getAndDisplaySelectedTrip(selectedId)
             displayEditFeatures();
         } else if (selected.hasClass('delete-trip')){
-            console.info('Delete Trip');
+            deleteAndRefresh(selectedId);
         }
     }));
 }
@@ -395,4 +460,5 @@ $(function (){
     watchViewPage();
     watchLogout();
     watchEditPage();
+    watchForSubmits();
 });
