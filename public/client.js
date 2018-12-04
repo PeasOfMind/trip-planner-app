@@ -150,7 +150,7 @@ function addItemForm(){
 //display a new place to input
 function addPlaceForm(){
     $('#saved-places').children('.js-add').remove();
-    $('#saved-places').prepend(`<form class="place-form js-place-form">
+    $('#saved-places').append(`<form class="add-place js-place-form">
     <label for="place-name">Place Name</label>
     <input type="text" name="place-name" class="js-place-name">
     <label for="address">Address</label>
@@ -169,7 +169,8 @@ function updateAndDisplayPlaceDetails(data, id, inputData, index){
         if (currentTrip.id === id){
             if (!index) {
                 index = currentTrip.savedPlaces.push(new Object)-1;
-                console.log(index);
+                $('#saved-places').append(`<div data-place-index="${index}"></div>`);
+                $('.add-place').remove();
             }
             currentPlace = currentTrip.savedPlaces[index];
             currentPlace.name = inputData.find('.js-place-name').val();
@@ -178,7 +179,8 @@ function updateAndDisplayPlaceDetails(data, id, inputData, index){
             $(`div[data-place-index='${index}']`).empty()
             .append('<button class="js-edit place">Edit Place Details</button>' + 
             '<button class="js-delete place">Delete Place</button>')
-            .append(displayOnePlace(currentPlace));
+            .append(displayOnePlace(currentPlace))
+            .append('<button class="js-add place">Add A New Place</button>');
         }
     }
 }
@@ -289,7 +291,7 @@ function generateListButtons(data, id){
 function displayEditFeatures(id){
     $('button.edit-trip').remove();
     $('#trip-details').prepend('<button class="js-edit details">Edit Trip Details</button>');
-    $('#saved-places').prepend('<button class="js-add place">Save A New Place</button>')
+    $('#saved-places').append('<button class="js-add place">Add A New Place</button>')
     $('.saved-place').prepend('<button class="js-edit place">Edit Place Details</button>' + 
     '<button class="js-delete place">Delete Place</button>');
     // get the correct buttons for the packing list (based on if it's empty or not)
@@ -298,8 +300,8 @@ function displayEditFeatures(id){
 
 //Displays the current trip that the user has selected
 
-function getSelectedTrip(callback, id){
-    setTimeout(function(){callback(MOCK_TRIP_DATA, id)}, 100);
+function getSelectedTrip(callback, id, shouldEdit){
+    setTimeout(function(){callback(MOCK_TRIP_DATA, id, shouldEdit)}, 100);
 }
 
 function displayPackingList(tripObject){
@@ -322,11 +324,13 @@ function displayOnePlace(place){
     <p class="place-type">Type: ${place.type}</p>`
 }
 
-function displaySavedPlaces(tripObject){
+function displaySavedPlaces(tripObject, shouldEdit){
     let placeHTML = [];
     for (let index = 0; index < tripObject.savedPlaces.length; index++) {
         let place = tripObject.savedPlaces[index];
         placeHTML.push(`<div class="saved-place" data-place-index="${index}">
+        ${shouldEdit ? `<button class="js-edit place">Edit Place Details</button>
+        <button class="js-delete place">Delete Place</button>`: ''}
         ${displayOnePlace(place)}
         </div>`);
     }
@@ -340,18 +344,20 @@ function displayTripDetails(currentTrip){
     <p>${currentTrip.dates.start.toLocaleDateString()} to ${currentTrip.dates.end.toLocaleDateString()}</p>`
 }
 
-function displaySelectedTrip(data, id){
+function displaySelectedTrip(data, id, shouldEdit){
     for (let index = 0; index < data.trips.length; index++){
         let currentTrip = data.trips[index];
         if (currentTrip.id === id){
             $('#active-trips').empty();
             $('#current-trip').attr('data-id', currentTrip.id);
             $('#current-trip').html(`<div id="trip-details">
+            ${shouldEdit ? '<button class="js-edit details">Edit Trip Details</button>' : ''}
             ${displayTripDetails(currentTrip)}
             </div>
             <div id="saved-places">
             <h4>Bookmarked Places</h4>
-            ${displaySavedPlaces(currentTrip)}
+            ${displaySavedPlaces(currentTrip, shouldEdit)}
+            ${shouldEdit ? '<button class="js-add place">Add A New Place</button>': ''}
             </div>
             <div id="packing-list">
             ${displayPackingList(currentTrip)}
@@ -362,12 +368,13 @@ function displaySelectedTrip(data, id){
             </button>`)
         }
     }
+    if (shouldEdit) connectToDatabase(generateListButtons, id);
     $('#active-trips').prop('hidden', true);
     $('#current-trip').prop('hidden', false);
 }
 
-function getAndDisplaySelectedTrip(id){
-    getSelectedTrip(displaySelectedTrip, id);
+function getAndDisplaySelectedTrip(id, shouldEdit){
+    getSelectedTrip(displaySelectedTrip, id, shouldEdit);
 }
 
 //Show all trips that user has created
@@ -403,8 +410,7 @@ function deleteItemAndRefresh(data, id, index){
         let currentTrip = data.trips[i];
         if (currentTrip.id === id){
             currentTrip.packingList.splice(index, 1);
-            getAndDisplaySelectedTrip(id);
-            displayEditFeatures(id);
+            getAndDisplaySelectedTrip(id, true);
         }
     }
 }
@@ -416,8 +422,7 @@ function deleteListAndRefresh(data, id){
         if (currentTrip.id === id){
             // currentTrip.packingList.splice(0, currentTrip.packingList.length);
             currentTrip.packingList.length = 0;
-            getAndDisplaySelectedTrip(id);
-            displayEditFeatures(id);
+            getAndDisplaySelectedTrip(id, true);
         }
     }
 }
@@ -428,8 +433,7 @@ function deletePlaceAndRefresh(data, id, index){
         let currentTrip = data.trips[i];
         if (currentTrip.id === id){
             currentTrip.savedPlaces.splice(index, 1);
-            getAndDisplaySelectedTrip(id);
-            displayEditFeatures(id);
+            getAndDisplaySelectedTrip(id, true);
         }
     }
 }
@@ -538,7 +542,7 @@ function watchViewPage(){
         const selected = $(event.currentTarget);
         const selectedId = selected.parent('div').attr('data-id');
         if (selected.hasClass('edit-trip')){
-            displayEditFeatures(selectedId);
+            getAndDisplaySelectedTrip(selectedId, true);
         } else if (selected.hasClass('delete-trip')){
             $('#current-trip').empty();
             connectToDatabase(deleteTripAndRefresh, selectedId);
@@ -557,9 +561,8 @@ function watchDashboard(){
         if(selected.hasClass('view-trip')) {
             getAndDisplaySelectedTrip(selectedId);
         } else if (selected.hasClass('edit-trip')){
-            //How to make this a promise chain? Make sure displayEditFeatures doesn't run until DisplaySelected Trip runs
-            getAndDisplaySelectedTrip(selectedId);
-            displayEditFeatures(selectedId);
+            //make display edit features a parameter of getAndDisplaySelectedTrip
+            getAndDisplaySelectedTrip(selectedId, true);
         } else if (selected.hasClass('delete-trip')){
             $('#active-trips').empty();
             connectToDatabase(deleteTripAndRefresh,selectedId);
