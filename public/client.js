@@ -179,8 +179,7 @@ function updateAndDisplayPlaceDetails(data, id, inputData, index){
             $(`div[data-place-index='${index}']`).empty()
             .append('<button class="js-edit place">Edit Place Details</button>' + 
             '<button class="js-delete place">Delete Place</button>')
-            .append(displayOnePlace(currentPlace))
-            .append('<button class="js-add place">Add A New Place</button>');
+            .append(displayOnePlace(currentPlace));
         }
     }
 }
