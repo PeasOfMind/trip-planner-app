@@ -13,7 +13,7 @@ const MOCK_TRIP_DATA = {
                 {
                     name: 'Baguette',
                     address: '123 Main Street, Fancy France Street, 75000',
-                    type: "Restaurant",
+                    type: 'Restaurant',
                 },
                 {
                     name: 'Eiffel Tower',
