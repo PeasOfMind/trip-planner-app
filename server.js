@@ -9,12 +9,14 @@ mongoose.Promise = global.Promise;
 
 const { PORT, DATABASE_URL } = require('./config');
 const { Trip } = require('./models');
+const { router: tripRouter } = require('./router');
 
 app.use(express.static('public'));
 app.use(morgan('common'));
 
-// app.use(express.json());
-// app.listen(process.env.PORT || 8080);
+app.use(express.json());
+
+app.use('/trips', tripRouter);
 
 let server;
 

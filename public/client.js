@@ -3,79 +3,79 @@
 const MOCK_TRIP_DATA = {
     trips: [ 
         {
-            id: '1111111',
-            name: 'Christmas Vacation', 
-            destination: {
-                location: 'Paris',
-                country: 'France'
+            "id": '1111111',
+            "name": 'Christmas Vacation', 
+            "destination": {
+                "location": 'Paris',
+                "country": 'France'
             },
-            savedPlaces: [
+            "savedPlaces": [
                 {
-                    name: 'Baguette',
-                    address: '123 Main Street, Fancy France Street, 75000',
-                    type: 'Restaurant',
+                    "name": 'Baguette',
+                    "address": '123 Main Street, Fancy France Street, 75000',
+                    "type": 'Restaurant'
                 },
                 {
-                    name: 'Eiffel Tower',
-                    address: 'Champ de Mars, 5 Avenue Anatole France, 75007',
-                    type:  'Landmark',
+                    "name": 'Eiffel Tower',
+                    "address": 'Champ de Mars, 5 Avenue Anatole France, 75007',
+                    "type":  'Landmark'
                 },
                 {
-                    name: 'Le 10 Bis Hotel',
-                    address: '10 B rue de Debarcadere, 75017',
-                    type: 'Accomodation'
+                    "name": 'Le 10 Bis Hotel',
+                    "address": '10 B rue de Debarcadere, 75017',
+                    "type": 'Accomodation'
                 }
             ],
-            packingList: [
+            "packingList": [
                 {
-                    item: 'sunscreen',
-                    packed: false
+                    "item": 'sunscreen',
+                    "packed": false
                 },
                 {
-                    item: 'passport',
-                    packed: true
+                    "item": 'passport',
+                    "packed": true
                 },
                 {
-                    item: 'foreign currency',
-                    packed: false
+                    "item": 'foreign currency',
+                    "packed": false
                 }
             ],
-            dates: {
-                start: new Date(2018, 12, 23),
-                end: new Date(2019, 1, 6)
+            "dates": {
+                "start": new Date(2018, 12, 23),
+                "end": new Date(2019, 1, 6)
             }
         },
         {
-            id: '222222',
-            name: 'Summer Family Trip', 
-            destination: {
-                location: 'Bangkok',
-                country: 'Thailand'
+            "id": '222222',
+            "name": 'Summer Family Trip', 
+            "destination": {
+                "location": 'Bangkok',
+                "country": 'Thailand'
             },
-            savedPlaces: [
+            "savedPlaces": [
                 {
-                    name: 'Temple of the Reclining Buddha',
-                    address: '2 Sanamchai Road, Grand Palace, Pranakorn, 10200',
-                    type: 'Restaurant',
+                    "name": 'Temple of the Reclining Buddha',
+                    "address": '2 Sanamchai Road, Grand Palace, Pranakorn, 10200',
+                    "type": 'Restaurant'
                 }
             ],
-            packingList: [
+            "packingList": [
                 {
-                    item: 'sunscreen',
-                    packed: false
+                    "item": 'sunscreen',
+                    "packed": false
                 },
                 {
-                    item: 'passport',
-                    packed: true
+                    "item": 'passport',
+                    "packed": true
                 },
                 {
-                    item: 'foreign currency',
-                    packed: false
+                    "item": 'foreign currency',
+                    "packed": false
                 }
             ],
-            dates: {
-                start: new Date(2019, 3, 15),
-                end: new Date(2019, 3, 22)
+            "dates": {
+                "start": new Date(2019, 3, 15),
+                "end": new Date(2019, 3, 22)
             }
         } 
     ]
@@ -379,7 +379,8 @@ function getAndDisplaySelectedTrip(id, shouldEdit){
 //Show all trips that user has created
 
 function getActiveTrips(callback){
-    setTimeout(function(){ callback(MOCK_TRIP_DATA)}, 100);
+    fetch('/trips')
+    .then(callback)
 }
 
 function displayActiveTrips(data){

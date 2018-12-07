@@ -10,15 +10,15 @@ const tripSchema = mongoose.Schema({
     },
     savedPlaces: [
         {
-            name: {type: String, required: true},
-            address: {type: String, required: true},
-            type: {type: String, required: true},
+            name: String,
+            address: String,
+            type: {type: String}
         }
     ],
     packingList: [
         {
-            item: {type: String, required: true},
-            packed: {type: Boolean, required: true}
+            item: String,
+            packed: Boolean
         }
     ],
     dates: {
