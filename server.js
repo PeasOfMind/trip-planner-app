@@ -8,7 +8,7 @@ const morgan = require('morgan');
 mongoose.Promise = global.Promise;
 
 const { PORT, DATABASE_URL } = require('./config');
-const { Trip } = require('./models');
+// const { Trip } = require('./models');
 const { router: tripRouter } = require('./router');
 
 app.use(express.static('public'));

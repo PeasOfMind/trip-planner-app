@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const {Trip} = require('./models');
+const {Trip, Place, Pack} = require('./models');
 
 
 router.get('/', (req,res) => {
@@ -82,7 +82,37 @@ router.put('/:id', (req, res) => {
     .catch(err => res.status(500).json({message: 'Trip details could not be updated'})
     );
 
-})
+});
+
+router.put('/places/:id', (req, res) => {
+    Trip.findById(req.params.id)
+    .then(trip => {
+        if (req.body.updatePlace.id){
+            trip.savedPlaces.id(req.body.updatePlace.id).update(req.body.updatePlace);
+            return trip.savedPlaces.id(req.body.updatePlace.id);
+        } else {
+            trip.savedPlaces.push(req.body.updatePlace);
+            return trip.savedPlaces[trip.savedPlaces.length -1];
+        }
+    })
+    .then(updatedPlace => res.status(201).json(updatedPlace))
+    .catch(err => res.status(500).json({message: 'Trip details could not be updated'}))
+});
+
+router.put('/packingList/:id', (req, res) => {
+    Trip.findById(req.params.id)
+    .then(trip => {
+        if (req.body.updatePacking.id){
+            trip.packingList.id(req.body.updatePacking.id).update(req.body.updatePacking);
+            return trip.savedPlaces.id(req.body.updatePacking.id);
+        } else {
+            trip.packingList.push(req.body.updatePacking);
+            return trip.packingList[trip.packingList.length -1];
+        }
+    })
+    .then(updatedList => res.status(201).json(updatedList))
+    .catch(err => res.status(500).json({message: 'Trip details could not be updated'}))
+});
 
 router.delete('/:id', (req,res) => {
     Trip.findByIdAndRemove(req.params.id)
