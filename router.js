@@ -84,34 +84,81 @@ router.put('/:id', (req, res) => {
 
 });
 
-router.put('/places/:id', (req, res) => {
+router.post('/:id/places', (req,res) => {
+    if ( !('name' in req.body) ){
+        const message = `Missing 'name' in request body`;
+        console.error(message);
+        return res.status(400).send(message);
+    }
     Trip.findById(req.params.id)
     .then(trip => {
-        if (req.body.updatePlace.id){
-            trip.savedPlaces.id(req.body.updatePlace.id).update(req.body.updatePlace);
-            return trip.savedPlaces.id(req.body.updatePlace.id);
-        } else {
-            trip.savedPlaces.push(req.body.updatePlace);
-            return trip.savedPlaces[trip.savedPlaces.length -1];
-        }
+        trip.savedPlaces.push(req.body);
+        trip.save();
+        return trip.savedPlaces[trip.savedPlaces.length -1];
     })
     .then(updatedPlace => res.status(201).json(updatedPlace))
-    .catch(err => res.status(500).json({message: 'Trip details could not be updated'}))
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({message: 'Place details could not be saved'});
+    });
 });
 
-router.put('/packingList/:id', (req, res) => {
+//TODO: change put endpoint to /trips/:id/places/:placeId
+
+router.put('/:id/places/:placeId', (req, res) => {
     Trip.findById(req.params.id)
     .then(trip => {
-        if (req.body.updatePacking.id){
-            trip.packingList.id(req.body.updatePacking.id).update(req.body.updatePacking);
-            return trip.savedPlaces.id(req.body.updatePacking.id);
-        } else {
-            trip.packingList.push(req.body.updatePacking);
-            return trip.packingList[trip.packingList.length -1];
+        if (req.params.placeId && req.body.id && req.params.placeId === req.body.id){
+            const editedPlace = trip.savedPlaces.id(req.params.placeId);
+            editedPlace.name = req.body.name;
+            editedPlace.address = req.body.address;
+            editedPlace.type = req.body.type;
+            trip.save();
+            return trip.savedPlaces.id(req.body.id);
         }
     })
+    .then(updatedPlace => res.status(204).end())
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({message: 'Place details could not be updated'});
+    });
+});
+
+router.post('/:id/packingList', (req, res) => {
+    if ( !('item' in req.body) ){
+        const message = `Missing 'item name' in request body`;
+        console.error(message);
+        return res.status(400).send(message);
+    }
+    Trip.findById(req.params.id)
+    .then(trip => {
+        trip.packingList.push(req.body);
+        trip.save();
+        return trip.packingList[trip.packingList.length -1];
+    })
     .then(updatedList => res.status(201).json(updatedList))
-    .catch(err => res.status(500).json({message: 'Trip details could not be updated'}))
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({message: 'Packing list details could not be updated'});
+    });
+})
+
+router.put('/:id/packingList/:listId', (req, res) => {
+    Trip.findById(req.params.id)
+    .then(trip => {
+        if (req.params.listId && req.body.id && req.params.listId === req.body.id){
+            const editedList = trip.packingList.id(req.body.id);
+            editedList.item = req.body.item;
+            editedList.packed = req.body.packed;
+            trip.save();
+            return trip.packingList.id(req.body.id);
+        }
+    })
+    .then(updatedList => res.status(204).end())
+    .catch(err => {
+        console.err(err);
+        res.status(500).json({message: 'Trip details could not be updated'});
+    });
 });
 
 router.delete('/:id', (req,res) => {
@@ -120,7 +167,34 @@ router.delete('/:id', (req,res) => {
         console.log(`Deleted trip with id '${req.params.id}'`);
         res.status(204).end();
     })
-    .catch(err => res.status(500).json({message: 'Could not process the delete request'}))
+    .catch(err => res.status(500).json({message: 'Could not delete the trip'}))
 });
+
+router.delete('/:id/places/:placeId', (req,res) => {
+    Trip.findById(req.params.id)
+    .then((trip) => {
+        trip.savedPlaces.id(req.params.placeId).remove();
+        trip.save();
+    })
+    .then(() => {
+        console.log(`Deleted saved place with id '${req.params.placeId}'`);
+        res.status(204).end();
+    })
+    .catch(err => res.status(500).json({message: 'Could not delete the saved place'}))
+});
+
+router.delete('/:id/packingList/:listId', (req,res) => {
+    Trip.findById(req.params.id)
+    .then((trip) => {
+        trip.packingList.id(req.params.listId).remove();
+        trip.save();
+    })
+    .then(() => {
+        console.log(`Deleted item with id '${req.params.listId}'`);
+        res.status(204).end();
+    })
+    .catch(err => res.status(500).json({message: 'Could not delete the item'}))
+});
+
 
 module.exports = {router};

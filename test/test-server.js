@@ -236,121 +236,121 @@ describe('Trip API resource', function(){
                 expect((trip.dates.start).toDateString()).to.equal(new Date(updateData.dates.start).toDateString());
                 expect((trip.dates.end).toDateString()).to.equal(new Date(updateData.dates.end).toDateString());
             });
-
         });
-        
     });
     
-    describe('PUT endpoint for /places', function(){
-        
-        it('should update for changes in saved places', function(){
-            const updateData = {
-                "updatePlace": {
-                    "name": "New Bistro",
-                    "address": "123 Main Street, Fancy Court, 10101",
-                    "type": "Restaurant"
-                }
-            };
-
-            return Trip.findOne()
-            .then(function(trip){
-                updateData.id = trip.id;
-                //set the place id to the first place in the database trip
-                updateData.updatePlace._id = trip.savedPlaces[0]._id;
-
-                return chai.request(app)
-                .put(`/trips/places/${updateData.id}`)
-                .send(updateData);
-            })
-            .then(function(res){
-                expect(res).to.have.status(201);
-                expect(res).to.be.json;
-                expect(res.body.name).to.equal(updateData.updatePlace.name);
-                expect(res.body.address).to.equal(updateData.updatePlace.address);
-                expect(res.body.type).to.equal(updateData.updatePlace.type);
-            });
-        });
+    describe('POST endpoint for /trips/:id/places', function(){
 
         it('should add a new place in saved places', function(){
             const newData = {
-                "updatePlace": {
-                    "name": "New Museum",
-                    "address": "456 Museum Way, Fancy Town, 12345",
-                    "type": "Museum"
-                }
+                "name": "New Museum",
+                "address": "456 Museum Way, Fancy Town, 12345",
+                "type": "Museum"
             };
 
+            //picks any trip to add a new place onto
             return Trip.findOne()
             .then(function(trip){
-                newData.id = trip.id;
-                //new place so no place id available yet
-
                 return chai.request(app)
-                .put(`/trips/places/${newData.id}`)
+                .post(`/trips/${trip.id}/places`)
                 .send(newData);
             })
             .then(function(res){
                 expect(res).to.have.status(201);
                 expect(res).to.be.json;
-                expect(res.body.name).to.equal(newData.updatePlace.name);
-                expect(res.body.address).to.equal(newData.updatePlace.address);
-                expect(res.body.type).to.equal(newData.updatePlace.type);
+                expect(res.body.name).to.equal(newData.name);
+                expect(res.body.address).to.equal(newData.address);
+                expect(res.body.type).to.equal(newData.type);
+            });
+        });
+    })
+
+    describe('PUT endpoint for /trips/:id/places', function(){
+        it('should update for changes in saved places', function(){
+            let tripId;
+            const updateData = {
+                "name": "New Bistro",
+                "address": "123 Main Street, Fancy Court, 10101",
+                "type": "Restaurant"
+            };
+
+            return Trip.findOne()
+            .then(function(trip){
+                tripId = trip.id;
+                //set the place id to the first place in the database trip
+                updateData.id = trip.savedPlaces[0].id;
+
+                return chai.request(app)
+                .put(`/trips/${tripId}/places/${updateData.id}`)
+                .send(updateData);
+            })
+            .then(function(res){
+                expect(res).to.have.status(204);
+
+                return Trip.findById(tripId)
+            })
+            .then(function(trip){
+                expect(trip.savedPlaces[0].id).to.equal(updateData.id);
+                expect(trip.savedPlaces[0].name).to.equal(updateData.name);
+                expect(trip.savedPlaces[0].address).to.equal(updateData.address);
+                expect(trip.savedPlaces[0].type).to.equal(updateData.type);
             });
         });
     });
 
-    describe('PUT endpoint for /packingList', function(){
-        
-        it('should update for changes in packing list', function(){
-            const updateData = {
-                "updatePacking": {
-                    "item": "Allergy medicine",
-                    "packed": true
-                }
-            };
-
-            return Trip.findOne()
-            .then(function(trip){
-                updateData.id = trip.id;
-                //set the packinglist id to the first place in the database trip
-                updateData.updatePacking._id = trip.packingList[0]._id;
-
-                return chai.request(app)
-                .put(`/trips/packingList/${updateData.id}`)
-                .send(updateData);
-            })
-            .then(function(res){
-                expect(res).to.have.status(201);
-                expect(res.body.item).to.equal(updateData.updatePacking.item);
-                expect(res.body.packed).to.equal(updateData.updatePacking.packed);
-            });
-        });
-        
-        it('should add a new place in saved places', function(){
+    describe('POST endpoint for /trips/:id/packingList', function(){
+                
+        it('should add a new item in packingList', function(){
             const newData = {
-                "updatePacking": {
                     "item": "passport",
                     "packed": false
-                }
             };
 
             return Trip.findOne()
             .then(function(trip){
-                newData.id = trip.id;
-                //new place so no place id available yet
-
                 return chai.request(app)
-                .put(`/trips/packingList/${newData.id}`)
+                .post(`/trips/${trip.id}/packingList`)
                 .send(newData);
             })
             .then(function(res){
                 expect(res).to.have.status(201);
-                expect(res.body.item).to.equal(newData.updatePacking.item);
-                expect(res.body.packed).to.equal(newData.updatePacking.packed);
+                expect(res.body.item).to.equal(newData.item);
+                expect(res.body.packed).to.equal(newData.packed);
+            });
+        });
+    });
+
+    describe('PUT endpoint for /trips/:id/packingList', function(){
+        
+        it('should update for changes in packing list', function(){
+            let tripId;
+            const updateData = {
+                "item": "Allergy medicine",
+                "packed": true
+            };
+
+            return Trip.findOne()
+            .then(function(trip){
+                tripId = trip.id;
+                //set the packinglist id to the first place in the database trip
+                updateData.id = trip.packingList[0].id;
+
+                return chai.request(app)
+                .put(`/trips/${tripId}/packingList/${updateData.id}`)
+                .send(updateData);
+            })
+            .then(function(res){
+                expect(res).to.have.status(204);
+                
+                return Trip.findById(tripId);
+            })
+            .then(function(trip){
+                expect(trip.packingList[0].item).to.equal(updateData.item);
+                expect(trip.packingList[0].packed).to.equal(updateData.packed);
             });
         });
         
-    })
+    });
 
     
     describe('DELETE endpoint', function(){
@@ -369,6 +369,50 @@ describe('Trip API resource', function(){
             })
             .then(function(tripResult){
                 expect(tripResult).to.be.null;
+            });
+        });
+    });
+
+    describe('DELETE endpoint for /trips/:id/places', function(){
+        it('should delete a place by id', function(){
+            let trip;
+            let placeId;
+            return Trip.findOne()
+            .then(function(_trip){
+                trip = _trip;
+                placeId = trip.savedPlaces[0].id;
+                return chai.request(app)
+                .delete(`/trips/${trip.id}/places/${placeId}`);
+            })
+            .then(function(res){
+                expect(res).to.have.status(204);
+                return Trip.findById(trip.id);
+            })
+            .then(returnedTrip => returnedTrip.savedPlaces.id(placeId))
+            .then(function(returnedPlace){
+                expect(returnedPlace).to.be.null;
+            });
+        });
+    });
+
+    describe('DELETE endpoint for /trips/:id/packingList', function(){
+        it('should delete a packing list item by id', function(){
+            let trip;
+            let listId;
+            return Trip.findOne()
+            .then(function(_trip){
+                trip = _trip;
+                listId = trip.packingList[0].id;
+                return chai.request(app)
+                .delete(`/trips/${trip.id}/packingList/${listId}`);
+            })
+            .then(function(res){
+                expect(res).to.have.status(204);
+                return Trip.findById(trip.id);
+            })
+            .then(returnedTrip => returnedTrip.packingList.id(listId))
+            .then(function(returnedList){
+                expect(returnedList).to.be.null;
             });
         });
     });

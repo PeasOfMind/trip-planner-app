@@ -11,7 +11,7 @@ const placeSchema = mongoose.Schema({
 const packingSchema = mongoose.Schema({
     item: String,
     packed: Boolean
-})
+});
 
 const tripSchema = mongoose.Schema({
     name: {type: String, required: true},
@@ -28,6 +28,8 @@ const tripSchema = mongoose.Schema({
 });
 
 //TODO: break out address in savedPlaces into building, street, and zipcode
+
+//TODO: savedPlaces.map(seralize)
 
 tripSchema.methods.serialize = function(){
     return {
