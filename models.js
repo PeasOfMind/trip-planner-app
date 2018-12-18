@@ -29,15 +29,30 @@ const tripSchema = mongoose.Schema({
 
 //TODO: break out address in savedPlaces into building, street, and zipcode
 
-//TODO: savedPlaces.map(seralize)
+placeSchema.methods.serialize = function(){
+    return {
+        id: this._id,
+        name: this.name,
+        address: this.address,
+        type: this.type
+    }
+}
+
+packingSchema.methods.serialize = function(){
+    return {
+        id: this._id,
+        item: this.item,
+        packed: this.packed
+    }
+}
 
 tripSchema.methods.serialize = function(){
     return {
         id: this._id,
         name: this.name,
         destination: this.destination,
-        savedPlaces: this.savedPlaces,
-        packingList: this.packingList,
+        savedPlaces: this.savedPlaces.map(place => place.serialize()),
+        packingList: this.packingList.map(item => item.serialize()),
         dates: this.dates
     }
 }

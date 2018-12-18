@@ -1,147 +1,274 @@
 'use strict'
 
-const MOCK_TRIP_DATA = {
-    trips: [ 
-        {
-            "id": '1111111',
-            "name": 'Christmas Vacation', 
-            "destination": {
-                "location": 'Paris',
-                "country": 'France'
-            },
-            "savedPlaces": [
-                {
-                    "name": 'Baguette',
-                    "address": '123 Main Street, Fancy France Street, 75000',
-                    "type": 'Restaurant'
-                },
-                {
-                    "name": 'Eiffel Tower',
-                    "address": 'Champ de Mars, 5 Avenue Anatole France, 75007',
-                    "type":  'Landmark'
-                },
-                {
-                    "name": 'Le 10 Bis Hotel',
-                    "address": '10 B rue de Debarcadere, 75017',
-                    "type": 'Accomodation'
-                }
-            ],
-            "packingList": [
-                {
-                    "item": 'sunscreen',
-                    "packed": false
-                },
-                {
-                    "item": 'passport',
-                    "packed": true
-                },
-                {
-                    "item": 'foreign currency',
-                    "packed": false
-                }
-            ],
-            "dates": {
-                "start": new Date(2018, 12, 23),
-                "end": new Date(2019, 1, 6)
-            }
+// const MOCK_TRIP_DATA = {
+//     trips: [ 
+//         {
+//             "id": '1111111',
+//             "name": 'Christmas Vacation', 
+//             "destination": {
+//                 "location": 'Paris',
+//                 "country": 'France'
+//             },
+//             "savedPlaces": [
+//                 {
+//                     "name": 'Baguette',
+//                     "address": '123 Main Street, Fancy France Street, 75000',
+//                     "type": 'Restaurant'
+//                 },
+//                 {
+//                     "name": 'Eiffel Tower',
+//                     "address": 'Champ de Mars, 5 Avenue Anatole France, 75007',
+//                     "type":  'Landmark'
+//                 },
+//                 {
+//                     "name": 'Le 10 Bis Hotel',
+//                     "address": '10 B rue de Debarcadere, 75017',
+//                     "type": 'Accomodation'
+//                 }
+//             ],
+//             "packingList": [
+//                 {
+//                     "item": 'sunscreen',
+//                     "packed": false
+//                 },
+//                 {
+//                     "item": 'passport',
+//                     "packed": true
+//                 },
+//                 {
+//                     "item": 'foreign currency',
+//                     "packed": false
+//                 }
+//             ],
+//             "dates": {
+//                 "start": new Date(2018, 12, 23),
+//                 "end": new Date(2019, 1, 6)
+//             }
+//         },
+//         {
+//             "id": '222222',
+//             "name": 'Summer Family Trip', 
+//             "destination": {
+//                 "location": 'Bangkok',
+//                 "country": 'Thailand'
+//             },
+//             "savedPlaces": [
+//                 {
+//                     "name": 'Temple of the Reclining Buddha',
+//                     "address": '2 Sanamchai Road, Grand Palace, Pranakorn, 10200',
+//                     "type": 'Restaurant'
+//                 }
+//             ],
+//             "packingList": [
+//                 {
+//                     "item": 'sunscreen',
+//                     "packed": false
+//                 },
+//                 {
+//                     "item": 'passport',
+//                     "packed": true
+//                 },
+//                 {
+//                     "item": 'foreign currency',
+//                     "packed": false
+//                 }
+//             ],
+//             "dates": {
+//                 "start": new Date(2019, 3, 15),
+//                 "end": new Date(2019, 3, 22)
+//             }
+//         } 
+//     ]
+// }
+
+function getActiveTrips(callback){
+    fetch('/trips')
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error (response.statusText);
+    })
+    .then(callback);
+}
+
+function getSelectedTrip(callback, id, shouldEdit){
+    fetch(`/trips/${id}`)
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error (response.statusText);
+    })
+    .then(responseJson => callback(responseJson, shouldEdit));
+}
+
+function getSelectedPlace(callback, id, placeId){
+    fetch(`/trips/${id}/places/${placeId}`)
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error (response.statusText);
+    })
+    .then(responseJson => callback(responseJson))
+}
+
+function getSelectedItem(callback, id, itemId){
+    fetch(`/trips/${id}/packingList/${itemId}`)
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error (response.statusText);
+    })
+    .then(responseJson => callback(responseJson))
+}
+
+function addNewPlace(callback, id, updateData){
+    fetch(`/trips/${id}/places`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
         },
-        {
-            "id": '222222',
-            "name": 'Summer Family Trip', 
-            "destination": {
-                "location": 'Bangkok',
-                "country": 'Thailand'
-            },
-            "savedPlaces": [
-                {
-                    "name": 'Temple of the Reclining Buddha',
-                    "address": '2 Sanamchai Road, Grand Palace, Pranakorn, 10200',
-                    "type": 'Restaurant'
-                }
-            ],
-            "packingList": [
-                {
-                    "item": 'sunscreen',
-                    "packed": false
-                },
-                {
-                    "item": 'passport',
-                    "packed": true
-                },
-                {
-                    "item": 'foreign currency',
-                    "packed": false
-                }
-            ],
-            "dates": {
-                "start": new Date(2019, 3, 15),
-                "end": new Date(2019, 3, 22)
-            }
-        } 
-    ]
+        body: JSON.stringify(updateData)
+    })
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error (response.statusText);
+    })
+    .then(responseJson => callback(responseJson));
 }
 
-function editDatabase(callback, id, inputData, index){
-    callback(MOCK_TRIP_DATA, id, inputData, index);
+function addNewItem(callback, id, updateData){
+    fetch(`/trips/${id}/packingList`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify(updateData)
+    })
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error (response.statusText);
+    })
+    .then(responseJson => callback(responseJson));
 }
 
-function connectToDatabase(callback, id, index){
-    callback(MOCK_TRIP_DATA, id, index);
+function editTrip(callback, updateData){
+    fetch(`/trips/${updateData.id}`, {
+        method: "PUT",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify(updateData)
+    })
+    .then(() => getSelectedTrip(callback,updateData.id));
 }
 
-function updateAndDisplayItemDetails(data, id, inputData, index){
-    for (let i = 0; i < data.trips.length; i++) {
-        let currentTrip = data.trips[i];
-        if (currentTrip.id === id){
-            const input = inputData.find('.js-item').val();
-            //check if this update is for an existing item
-            if (index) {
-                const currentItem = currentTrip.packingList[index];
-                currentItem.item = input;
-                $(`li[data-list-index=${index}]`).empty()
-                .text(currentItem.item)
-                .append('<button class="js-edit item">Edit Item</button>' +
-                '<button class="js-delete item">Delete Item</button>');
-            } else {
-                //if no index then item is new and needs to be added to database
-                currentTrip.packingList.push({
-                    item: input,
-                    packed: false
-                });
-                $('#item-list').append(`<li data-list-index="${
-                    currentTrip.packingList.length-1}">${input}
-                    <button class="js-edit item">Edit Item</button>
-                    <button class="js-delete item">Delete Item</button></li>`);
-            }
-        }
+function editPlace(callback, id, placeId, updateData){
+    fetch(`/trips/${id}/places/${placeId}`, {
+        method: "PUT",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify(updateData)
+    })
+    .then(() => getSelectedPlace(callback, id, placeId));
+}
+
+function editItem(callback, id, itemId, updateData){
+    fetch(`/trips/${id}/packingList/${itemId}`, {
+        method: "PUT",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify(updateData)
+    })
+    .then(() => getSelectedItem(callback, id, itemId));
+}
+
+
+function deleteTripFromDatabase(callback, id){
+    fetch(`/trips/${id}`, {method: "DELETE"})
+    .then(response => {
+        if (!response.ok) throw new Error (response.statusText);
+    })
+    .then(callback);
+}
+
+function deletePlaceFromTrip(callback, id, placeId){
+    fetch(`/trips/${id}/places/${placeId}`, {method: "DELETE"})
+    .then(response => {
+        if (!response.ok) throw new Error (response.statusText);
+    })
+    .then(() => callback(id, true));
+}
+
+function deletePackingListFromTrip(callback, id){
+    fetch(`/trips/${id}/packingList`, {method: "DELETE"})
+    .then(response => {
+        if (!response.ok) throw new Error (response.statusText);
+    })
+    .then(() => callback(id, true))
+}
+
+function deletePackingItemFromTrip(callback,id, itemId){
+    fetch(`/trips/${id}/packingList/${itemId}`, {method: "DELETE"})
+    .then(response => {
+        if (!response.ok) throw new Error (response.statusText);
+    })
+    .then(() => callback(id, true));
+}
+
+function updateAndDisplayItemDetails(inputData, id, itemId){
+    const updateData = {};
+    updateData.item = inputData.find('.js-item').val();
+    if (itemId) {
+        updateData.id = itemId;
+        editItem(displayUpdatedItem, id, itemId, updateData);
+    } else {
+        updateData.packed = false;
+        addNewItem(displayNewItem, id, updateData);
     }
 }
 
-function prefillItemForm(data, id, index){
+function displayUpdatedItem(currentItem){
+    $(`li[data-list-id=${currentItem.id}]`).empty()
+    .text(currentItem.item)
+    .append('<button class="js-edit item">Edit Item</button>' +
+    '<button class="js-delete item">Delete Item</button>');
+}
+
+function displayNewItem(newItem){
+    $('.add-item').remove()
+    $('#item-list').append(`<li data-list-id="${newItem.id}" data-checked="${
+    newItem.packed}" ${newItem.packed ? "class = packing-item_checked" : ''
+    }>${newItem.item} 
+    <button class="js-edit item">Edit Item</button>
+    <button class="js-delete item">Delete Item</button>
+    </li>`)
+    $('#packing-list').append('<button class="js-add item">Add Item</button>')
+
+}
+
+function prefillItemForm(currentItem){
     //fill in values with current item details
-    for (let i = 0; i < data.trips.length; i++){
-        let currentTrip = data.trips[i];
-        if (currentTrip.id === id){
-            $(`li[data-list-index=${index}]`).find('.js-item')
-            .val(currentTrip.packingList[index].item);           
-        }
-    }
+    $(`li[data-list-id=${currentItem.id}]`).find('.js-item')
+    .val(currentItem.item);           
 }
 
 //display the item as an editable input
-function getAndDisplayItemForm(id, index){
-    $(`li[data-list-index=${index}]`).empty().append(`
+function getAndDisplayItemForm(id, itemId){
+    $(`li[data-list-id=${itemId}]`).empty().append(`
     <form class="item-form">
     <input type="text" class="js-item">
     <input type="submit" class="js-submit-item" value="Submit Edits">
     </form>`);
-    connectToDatabase(prefillItemForm, id, index);
+    getSelectedItem(prefillItemForm, id, itemId);
 }
 
 //display a new item to input
 function addItemForm(){
     $('#packing-list').children('.js-add').remove();
-    $('#packing-list').prepend(`<form class="item-form">
+    $('#packing-list').append(`<form class="add-item item-form">
     <input type="text" class="js-item">
     <input type="submit" class="js-submit-item" value="Add To Packing List">
     </form>`);
@@ -157,90 +284,79 @@ function addPlaceForm(){
     <input type="text" name="address" class="js-address">
     <label for="place-type">Place Type</label>
     <input type="text" name="place-type" class="js-place-type">
-    <input type="submit" class="js-submit-place" value="Submit Edits">
+    <input type="submit" class="js-submit-place" value="Add to Bookmarked Places">
     </form>`);
 }
 
 //update place details in database
-function updateAndDisplayPlaceDetails(data, id, inputData, index){
-    for (let i = 0; i < data.trips.length; i++) {
-        let currentTrip = data.trips[i];
-        let currentPlace;
-        if (currentTrip.id === id){
-            if (!index) {
-                index = currentTrip.savedPlaces.push(new Object)-1;
-                $('#saved-places').append(`<div data-place-index="${index}"></div>`);
-                $('.add-place').remove();
-            }
-            currentPlace = currentTrip.savedPlaces[index];
-            currentPlace.name = inputData.find('.js-place-name').val();
-            currentPlace.address = inputData.find('.js-address').val();
-            currentPlace.type = inputData.find('.js-place-type').val();
-            $(`div[data-place-index='${index}']`).empty()
-            .append('<button class="js-edit place">Edit Place Details</button>' + 
-            '<button class="js-delete place">Delete Place</button>')
-            .append(displayOnePlace(currentPlace));
-        }
-    }
+function updateAndDisplayPlaceDetails(inputData, id, placeId){
+    const updateData = {};
+    updateData.name = inputData.find('.js-place-name').val();
+    updateData.address = inputData.find('.js-address').val();
+    updateData.type = inputData.find('.js-place-type').val();
+    if (placeId) {
+        updateData.id = placeId;
+        editPlace(displayUpdatedPlace, id, placeId, updateData);
+    } else addNewPlace(displayNewPlace, id, updateData);
+}
+
+function displayUpdatedPlace(currentPlace){
+    $(`div[data-place-id='${currentPlace.id}']`).empty()
+    .append('<button class="js-edit place">Edit Place Details</button>' + 
+    '<button class="js-delete place">Delete Place</button>')
+    .append(displayOnePlace(currentPlace));
+}
+
+function displayNewPlace(newPlace){
+    $('.add-place').remove()
+    $('#saved-places').append(
+        `<div class="saved-place" data-place-id="${newPlace.id}">
+        <button class="js-edit place">Edit Place Details</button>
+        <button class="js-delete place">Delete Place</button>
+        ${displayOnePlace(newPlace)} </div>`)
+    .append('<button class="js-add place">Add A New Place</button>');
 }
 
 //update trip details in database
-function updateAndDisplayTripDetails(data, id){
-    for (let index = 0; index < data.trips.length; index++) {
-        let currentTrip = data.trips[index];
-        if (currentTrip.id === id){
-            currentTrip.name = $('#js-trip-name').val();
-            currentTrip.destination.location = $('#js-location').val();
-            currentTrip.destination.country = $('#js-country').val();
-            const newStart = $('#js-start-date').val().split('-');
-            const newEnd = $('#js-end-date').val().split('-');
-            currentTrip.dates.start = new Date(newStart[0], newStart[1], newStart[2]);
-            currentTrip.dates.end = new Date(newEnd[0], newEnd[1], newEnd[2]);
-            $('#trip-details').empty().append(displayTripDetails(currentTrip))
-            .prepend('<button class="js-edit details">Edit Trip Details</button>');
-        }
-    }
+function updateAndDisplayTripDetails(updateTrip){
+    updateTrip.name = $('#js-trip-name').val();
+    updateTrip.destination.location = $('#js-location').val();
+    updateTrip.destination.country = $('#js-country').val();
+    updateTrip.dates.start = $('#js-start-date').val();
+    updateTrip.dates.end = $('#js-end-date').val();
+    editTrip(displayUpdatedTripDetails, updateTrip);
 }
 
-function prefillPlaceForm(data, id, index){
+function prefillPlaceForm(currentPlace){
     //fill in values with current place details
-    const currentForm = $(`div[data-place-index='${index}']`);
-    for (let i = 0; i < data.trips.length; i++){
-        let currentTrip = data.trips[i];
-        if (currentTrip.id === id){
-            const currentPlace = currentTrip.savedPlaces[index];
-            currentForm.find('.js-place-name').val(currentPlace.name);
-            currentForm.find('.js-address').val(currentPlace.address);
-            currentForm.find('.js-place-type').val(currentPlace.type);
-        }
-    }
+    const currentForm = $(`div[data-place-id='${currentPlace.id}']`);
+    currentForm.find('.js-place-name').val(currentPlace.name);
+    currentForm.find('.js-address').val(currentPlace.address);
+    currentForm.find('.js-place-type').val(currentPlace.type);
 }
 
-function prefillDetailsForm(data, id){
+function prefillDetailsForm(currentTrip){
     //fill in values with current trip details
-    for (let index = 0; index < data.trips.length; index++){
-        let currentTrip = data.trips[index];
-        if (currentTrip.id === id){
-            $('#js-trip-name').val(currentTrip.name);
-            $('#js-location').val(currentTrip.destination.location);
-            $('#js-country').val(currentTrip.destination.country);
-            $('#js-start-date').val(currentTrip.dates.start.toISOString().split('T')[0]);
-            $('#js-end-date').val(currentTrip.dates.end.toISOString().split('T')[0]);            
-        }
-    }
+    const startDate = new Date(currentTrip.dates.start).toISOString().split('T')[0];
+    const endDate = new Date(currentTrip.dates.end).toISOString().split('T')[0];    
+    $('#js-trip-name').val(currentTrip.name);
+    $('#js-location').val(currentTrip.destination.location);
+    $('#js-country').val(currentTrip.destination.country);
+    $('#js-start-date').val(startDate);
+    $('#js-end-date').val(endDate);
 }
 
 //Add buttons to edit packing list (add, edit, delete)
 function displayListOptions(){
     $('button.list').remove();
-    $('#packing-list').prepend('<button class="js-add item">Add Item</button>');
     $('#item-list li').append('<button class="js-edit item">Edit Item</button>' +
     '<button class="js-delete item">Delete Item</button>');
+    $('#packing-list').append('<button class="js-add item">Add Item</button>');
 }
 
 //Turn the saved place into an editable form
-function getAndDisplayPlaceForm(selectedId, index){
-    $(`div[data-place-index='${index}']`).empty().append(`
+function getAndDisplayPlaceForm(selectedId, placeId){
+    $(`div[data-place-id='${placeId}']`).empty().append(`
     <form class="place-form js-place-form">
         <label for="place-name">Place Name</label>
         <input type="text" name="place-name" class="js-place-name">
@@ -250,7 +366,7 @@ function getAndDisplayPlaceForm(selectedId, index){
         <input type="text" name="place-type" class="js-place-type">
         <input type="submit" class="js-submit-place" value="Submit Edits">
     </form>`);
-    connectToDatabase(prefillPlaceForm, selectedId, index);
+    getSelectedPlace(prefillPlaceForm, selectedId, placeId);
 }
 
 //Turn the trip details section into a editable form
@@ -269,46 +385,30 @@ function getAndDisplayDetailsForm(selectedId){
         <input type="date" name="end-date" id="js-end-date">
         <input type="submit" id="js-submit-details" value="Submit Edits">
     </form>`)
-    connectToDatabase(prefillDetailsForm, selectedId);
+    getSelectedTrip(prefillDetailsForm, selectedId);
 }
 
-function generateListButtons(data, id){
-    for (let index = 0; index < data.trips.length; index++){
-        let currentTrip = data.trips[index];
-        if (currentTrip.id === id){
-            if(currentTrip.packingList.length > 0){
-                $('#packing-list').prepend('<button class="js-edit list">Edit Packing List</button>' + 
-                '<button class="js-delete list">Delete Packing List</button>');
-            } else {
-                $('#packing-list').prepend('<button class="js-add item">Add Item</button>');
-            }
-        }
+function displayUpdatedTripDetails(currentTrip){
+    $('#trip-details').empty().append(displayTripDetails(currentTrip))
+    .prepend('<button class="js-edit details">Edit Trip Details</button>');
+}
+
+function generateListButtons(currentTrip){
+    if(currentTrip.packingList.length > 0){
+        $('#packing-list').prepend('<button class="js-edit list">Edit Packing List</button>' + 
+        '<button class="js-delete list">Delete Packing List</button>');
+    } else {
+        $('#packing-list').prepend('<button class="js-add item">Add Item</button>');
     }
-}
-
-//Add edit buttons to each section of current trip
-function displayEditFeatures(id){
-    $('button.edit-trip').remove();
-    $('#trip-details').prepend('<button class="js-edit details">Edit Trip Details</button>');
-    $('#saved-places').append('<button class="js-add place">Add A New Place</button>')
-    $('.saved-place').prepend('<button class="js-edit place">Edit Place Details</button>' + 
-    '<button class="js-delete place">Delete Place</button>');
-    // get the correct buttons for the packing list (based on if it's empty or not)
-    connectToDatabase(generateListButtons, id);
-}
-
-//Displays the current trip that the user has selected
-
-function getSelectedTrip(callback, id, shouldEdit){
-    setTimeout(function(){callback(MOCK_TRIP_DATA, id, shouldEdit)}, 100);
 }
 
 function displayPackingList(tripObject){
     let listArray = [];
     if (tripObject.packingList.length > 0){
         for (let index = 0; index < tripObject.packingList.length; index++){
-            let listItem = tripObject.packingList[index];
-            listArray.push(`<li data-list-index="${index}">${listItem.item}</li>`)
+            let listItem = tripObject.packingList[index]; 
+            listArray.push(`<li data-list-id="${listItem.id}" data-checked="${
+                listItem.packed}" ${listItem.packed ? "class = packing-item_checked" : ''}>${listItem.item}</li>`)
         }
         const listHTML = listArray.join('');
         return `<h4>Packing List</h4>
@@ -327,7 +427,7 @@ function displaySavedPlaces(tripObject, shouldEdit){
     let placeHTML = [];
     for (let index = 0; index < tripObject.savedPlaces.length; index++) {
         let place = tripObject.savedPlaces[index];
-        placeHTML.push(`<div class="saved-place" data-place-index="${index}">
+        placeHTML.push(`<div class="saved-place" data-place-id="${place.id}">
         ${shouldEdit ? `<button class="js-edit place">Edit Place Details</button>
         <button class="js-delete place">Delete Place</button>`: ''}
         ${displayOnePlace(place)}
@@ -337,37 +437,36 @@ function displaySavedPlaces(tripObject, shouldEdit){
 }
 
 function displayTripDetails(currentTrip){
+    const startDate = new Date(currentTrip.dates.start).toLocaleDateString();
+    const endDate = new Date(currentTrip.dates.end).toLocaleDateString();
     return `<h2 class="trip-name">${currentTrip.name}</h2>
     <h3 class="destination">${currentTrip.destination.location}, ${currentTrip.destination.country}</h3>
     <h4 class="date">Dates</h4>
-    <p>${currentTrip.dates.start.toLocaleDateString()} to ${currentTrip.dates.end.toLocaleDateString()}</p>`
+    <p>${startDate} to ${endDate}</p>`
 }
 
-function displaySelectedTrip(data, id, shouldEdit){
-    for (let index = 0; index < data.trips.length; index++){
-        let currentTrip = data.trips[index];
-        if (currentTrip.id === id){
-            $('#active-trips').empty();
-            $('#current-trip').attr('data-id', currentTrip.id);
-            $('#current-trip').html(`<div id="trip-details">
-            ${shouldEdit ? '<button class="js-edit details">Edit Trip Details</button>' : ''}
-            ${displayTripDetails(currentTrip)}
-            </div>
-            <div id="saved-places">
-            <h4>Bookmarked Places</h4>
-            ${displaySavedPlaces(currentTrip, shouldEdit)}
-            ${shouldEdit ? '<button class="js-add place">Add A New Place</button>': ''}
-            </div>
-            <div id="packing-list">
-            ${displayPackingList(currentTrip)}
-            </div>
-            <button class="edit-trip">Edit Trip</button>
-            <button class="delete-trip">Delete Trip</button>
-            <button class="dashboard-redirect">Back to Dashboard
-            </button>`)
-        }
-    }
-    if (shouldEdit) connectToDatabase(generateListButtons, id);
+//Displays the current trip that the user has selected
+
+function displaySelectedTrip(currentTrip, shouldEdit){
+    $('#active-trips').empty();
+    $('#current-trip').attr('data-id', currentTrip.id);
+    $('#current-trip').html(`<div id="trip-details">
+    ${shouldEdit ? '<button class="js-edit details">Edit Trip Details</button>' : ''}
+    ${displayTripDetails(currentTrip)}
+    </div>
+    <div id="saved-places">
+    <h4>Bookmarked Places</h4>
+    ${displaySavedPlaces(currentTrip, shouldEdit)}
+    ${shouldEdit ? '<button class="js-add place">Add A New Place</button>': ''}
+    </div>
+    <div id="packing-list">
+    ${displayPackingList(currentTrip)}
+    </div>
+    ${shouldEdit ? '': '<button class="edit-trip">Edit Trip</button>'}
+    <button class="delete-trip">Delete Trip</button>
+    <button class="dashboard-redirect">Back to Dashboard
+    </button>`)
+    if (shouldEdit) generateListButtons(currentTrip);
     $('#active-trips').prop('hidden', true);
     $('#current-trip').prop('hidden', false);
 }
@@ -377,15 +476,10 @@ function getAndDisplaySelectedTrip(id, shouldEdit){
 }
 
 //Show all trips that user has created
+function displayActiveTrips(responseJson){
 
-function getActiveTrips(callback){
-    fetch('/trips')
-    .then(callback)
-}
-
-function displayActiveTrips(data){
-    for (let index = 0; index < data.trips.length; index++) {
-        let currentTrip = data.trips[index];
+    for (let index = 0; index < responseJson.trips.length; index++) {
+        let currentTrip = responseJson.trips[index];
         $('#active-trips').append(`<div data-id=${currentTrip.id}>
         <h2>${currentTrip.name}</h2>
         <h3>${currentTrip.destination.location}</h3>
@@ -404,60 +498,13 @@ function getAndDisplayActiveTrips(){
     getActiveTrips(displayActiveTrips);
 }
 
-//delete item from packing list and refresh page
-function deleteItemAndRefresh(data, id, index){
-    for (let i = 0; i < data.trips.length; i++){
-        let currentTrip = data.trips[i];
-        if (currentTrip.id === id){
-            currentTrip.packingList.splice(index, 1);
-            getAndDisplaySelectedTrip(id, true);
-        }
-    }
-}
-
-//delete entire packing list and refresh page
-function deleteListAndRefresh(data, id){
-    for (let index = 0; index < data.trips.length; index++){
-        let currentTrip = data.trips[index];
-        if (currentTrip.id === id){
-            // currentTrip.packingList.splice(0, currentTrip.packingList.length);
-            currentTrip.packingList.length = 0;
-            getAndDisplaySelectedTrip(id, true);
-        }
-    }
-}
-
-//delete place from database and refresh page
-function deletePlaceAndRefresh(data, id, index){
-    for (let i = 0; i < data.trips.length; i++){
-        let currentTrip = data.trips[i];
-        if (currentTrip.id === id){
-            currentTrip.savedPlaces.splice(index, 1);
-            getAndDisplaySelectedTrip(id, true);
-        }
-    }
-}
-
-//delete trip from database and refresh page
-function deleteTripAndRefresh(data, id){
-    for (let index = 0; index < data.trips.length; index++){
-        let currentTrip = data.trips[index];
-        if (currentTrip.id === id){
-            data.trips.splice(index, 1);
-            getAndDisplayActiveTrips();
-        }
-    }
-}
-
 function watchForSubmits(){
     //check to see if edits are submitted for trip details
     $('#current-trip').on('submit','.js-details-form',(event) => {
         event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
-        editDatabase(updateAndDisplayTripDetails,selectedId);
-        // } else if (selected.hasClass('js-submit-place')){
-        //     //update place details in database
+        getSelectedTrip(updateAndDisplayTripDetails, selectedId);
     });
 
     //check to see if edits are submitted for place details
@@ -465,8 +512,8 @@ function watchForSubmits(){
         event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
-        const placeIndex = selected.parent('div').attr('data-place-index');
-        editDatabase(updateAndDisplayPlaceDetails, selectedId, selected, placeIndex);
+        const placeId = selected.parent('div').attr('data-place-id');
+        updateAndDisplayPlaceDetails(selected, selectedId, placeId);
     });
 
     //check to see if any packing list items have been edited or added
@@ -474,8 +521,8 @@ function watchForSubmits(){
         event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
-        const itemIndex = selected.parent('li').attr('data-list-index');
-        editDatabase(updateAndDisplayItemDetails, selectedId, selected, itemIndex);
+        const itemId = selected.parent('li').attr('data-list-id');
+        updateAndDisplayItemDetails(selected, selectedId, itemId);
     });
 }
 
@@ -499,19 +546,21 @@ function watchForDeletes(){
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
         if (selected.hasClass('place')){
-            //delete the place from the database
-            const placeIndex = selected.parent('div').attr('data-place-index');
-            connectToDatabase(deletePlaceAndRefresh, selectedId, placeIndex);
+            //delete the place from the database and refresh page
+            const placeId = selected.parent('div').attr('data-place-id');
+            deletePlaceFromTrip(getAndDisplaySelectedTrip, selectedId, placeId);
         } else if (selected.hasClass('list')){
-            //delete the packing list
-            connectToDatabase(deleteListAndRefresh, selectedId);
+            //delete the packing list and refresh page
+            deletePackingListFromTrip(getAndDisplaySelectedTrip, selectedId);
         } else if (selected.hasClass('item')){
-            //delete an item on the packing list
-            const itemIndex = selected.parent('li').attr('data-list-index');
-            connectToDatabase(deleteItemAndRefresh, selectedId, itemIndex);
+            //delete an item on the packing list and refresh page
+            const itemIndex = selected.parent('li').attr('data-list-id');
+            deletePackingItemFromTrip(getAndDisplaySelectedTrip, selectedId, itemIndex);
         }
     });
 }
+
+//TODO: Remove Edit Trip button if already in edit mode
 
 function watchForEdits(){
     $('#current-trip').on('click', 'button.js-edit', (event) => {
@@ -523,15 +572,15 @@ function watchForEdits(){
             getAndDisplayDetailsForm(selectedId);
         } else if (selected.hasClass('place')){
             //edit the place details for one place
-            const placeIndex = selected.parent('div').attr('data-place-index');
-            getAndDisplayPlaceForm(selectedId, placeIndex);
+            const placeId = selected.parent('div').attr('data-place-id');
+            getAndDisplayPlaceForm(selectedId, placeId);
         } else if (selected.hasClass('list')){
             //edit the packing list
             displayListOptions();
         } else if (selected.hasClass('item')){
             //edit an item on the packing list
-            const itemIndex = selected.parent('li').attr('data-list-index');
-            getAndDisplayItemForm(selectedId, itemIndex);
+            const itemId = selected.parent('li').attr('data-list-id');
+            getAndDisplayItemForm(selectedId, itemId);
         }
     });
 }
@@ -545,7 +594,7 @@ function watchViewPage(){
             getAndDisplaySelectedTrip(selectedId, true);
         } else if (selected.hasClass('delete-trip')){
             $('#current-trip').empty();
-            connectToDatabase(deleteTripAndRefresh, selectedId);
+            deleteTripFromDatabase(getAndDisplayActiveTrips, selectedId);
         } else if (selected.hasClass('dashboard-redirect')){
             $('#current-trip').empty().removeAttr('data-id');
             getAndDisplayActiveTrips(); 
@@ -565,7 +614,7 @@ function watchDashboard(){
             getAndDisplaySelectedTrip(selectedId, true);
         } else if (selected.hasClass('delete-trip')){
             $('#active-trips').empty();
-            connectToDatabase(deleteTripAndRefresh,selectedId);
+            deleteTripFromDatabase(getAndDisplayActiveTrips,selectedId);
         }
     }));
 }
