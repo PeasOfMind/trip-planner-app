@@ -176,6 +176,49 @@ describe('Trip API resource', function(){
         });
     });
 
+    describe('GET by place id endpoint', function(){
+        it('should return the requested place', function(){
+            let trip;
+            let currentPlace;
+            return Trip.findOne()
+            .then(function(_trip){
+                trip = _trip;
+                currentPlace = trip.savedPlaces[0];
+                return chai.request(app)
+                .get(`/trips/${trip.id}/places/${currentPlace.id}`)
+            })
+            .then(function(res){
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res).to.be.an('object');
+                expect(res.body.name).to.equal(currentPlace.name);
+                expect(res.body.address).to.equal(currentPlace.address);
+                expect(res.body.type).to.equal(currentPlace.type);
+            });
+        });
+    });
+
+    describe('GET by packing item id endpoint', function(){
+        it('should return the requested item', function(){
+            let trip;
+            let currentItem;
+            return Trip.findOne()
+            .then(function(_trip){
+                trip = _trip;
+                currentItem = trip.packingList[0];
+                return chai.request(app)
+                .get(`/trips/${trip.id}/packingList/${currentItem.id}`)
+            })
+            .then(function(res){
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res).to.be.an('object');
+                expect(res.body.item).to.equal(currentItem.item);
+                expect(res.body.packed).to.equal(currentItem.packed);
+            });
+        });
+    });
+
     describe('POST endpoint', function(){
         it('should add a new trip', function(){
             const newTrip = generateTripData();
@@ -265,7 +308,7 @@ describe('Trip API resource', function(){
         });
     })
 
-    describe('PUT endpoint for /trips/:id/places', function(){
+    describe('PUT endpoint for /trips/:id/places/:placeId', function(){
         it('should update for changes in saved places', function(){
             let tripId;
             const updateData = {
@@ -287,7 +330,7 @@ describe('Trip API resource', function(){
             .then(function(res){
                 expect(res).to.have.status(204);
 
-                return Trip.findById(tripId)
+                return Trip.findById(tripId);
             })
             .then(function(trip){
                 expect(trip.savedPlaces[0].id).to.equal(updateData.id);
@@ -320,7 +363,7 @@ describe('Trip API resource', function(){
         });
     });
 
-    describe('PUT endpoint for /trips/:id/packingList', function(){
+    describe('PUT endpoint for /trips/:id/packingList/:listId', function(){
         
         it('should update for changes in packing list', function(){
             let tripId;
@@ -373,7 +416,7 @@ describe('Trip API resource', function(){
         });
     });
 
-    describe('DELETE endpoint for /trips/:id/places', function(){
+    describe('DELETE endpoint for /trips/:id/places/:placeId', function(){
         it('should delete a place by id', function(){
             let trip;
             let placeId;
@@ -396,6 +439,25 @@ describe('Trip API resource', function(){
     });
 
     describe('DELETE endpoint for /trips/:id/packingList', function(){
+        it('should delete all items in the packing list', function(){
+            let tripId;
+            return Trip.findOne()
+            .then(function(trip){
+                tripId = trip.id;
+                return chai.request(app)
+                .delete(`/trips/${tripId}/packingList`);
+            })
+            .then(function(res){
+                expect(res).to.have.status(204);
+                return Trip.findById(tripId);
+            })
+            .then(function(returnedTrip){
+                expect(returnedTrip.packingList).to.be.an('array').that.is.empty;
+            })
+        })
+    })
+
+    describe('DELETE endpoint for /trips/:id/packingList/:listId', function(){
         it('should delete a packing list item by id', function(){
             let trip;
             let listId;
