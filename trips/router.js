@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const {Trip, Place, Pack} = require('./models');
+const {Trip} = require('./models');
 
 
 router.get('/', (req,res) => {
@@ -235,6 +235,5 @@ router.delete('/:id/packingList/:listId', (req,res) => {
     })
     .catch(err => res.status(500).json({message: 'Could not delete the item'}));
 });
-
 
 module.exports = {router};

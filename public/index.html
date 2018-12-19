@@ -12,14 +12,25 @@
     </header>
     <div id="login-page">
         <form id="login" class="js-login-form">
-            <label for="email">Email</label>
-            <input name="email" type="text" id="js-email">
+            <label for="username">Username</label>
+            <input name="username" type="text" id="js-username">
             <label for="password">Password</label>
             <input name="password" type="text" id="js-password">
             <input type="submit" value="Log In">
         </form>
         <p>New User?</p>
         <button id="signup-redirect">Sign Up Here</button>
+    </div>
+    <div id="signup-page" hidden>
+        <form id="signup-form" class="js-signup-form">
+            <label for="new-username">Username</label>
+            <input type="text" name="new-username" id="js-new-username">
+            <label for="new-password">Password</label>
+            <input type="text" name="new-password" id="js-new-password">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="text" name="confirm-password" id="js-confirm-password">
+            <input type="submit" id="js-submit-signup" value="Sign Up for Account">
+        </form>
     </div>
     <div id="active-trips" hidden>
     </div>
