@@ -1,17 +1,17 @@
 'use strict';
 
 const express = require('express');
-
 const {User} = require('./models');
-
 const router = express.Router();
 
 
 router.post('/', (req, res) => {
+    console.log('user req.body', req.body);
     const requiredFields = ['username', 'password'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
     if (missingField){
+        console.log('the missing field is:', missingField);
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
@@ -50,10 +50,10 @@ router.post('/', (req, res) => {
     };
 
     const tooSmallField = Object.keys(sizedFields).find(field => 
-        'min' in sizedFields[field] && req.body[field].length < sizedField[field].min);
+        'min' in sizedFields[field] && req.body[field].length < sizedFields[field].min);
 
     const tooLargeField = Object.keys(sizedFields).find(field => 
-        'max' in sizedFields[field] && req.body[field].length < sizedFields[field].max);
+        'max' in sizedFields[field] && req.body[field].length > sizedFields[field].max);
 
     if (tooSmallField || tooLargeField){
         return res.status(422).json({
@@ -70,7 +70,8 @@ router.post('/', (req, res) => {
 
     return User.find({username}, null)
     .then(entry => {
-        if (entry !== null){
+        console.log('The found entry is', entry);
+        if (entry.length > 0){
             //There is an existing user in database
             return Promise.reject({
                 code: 422,

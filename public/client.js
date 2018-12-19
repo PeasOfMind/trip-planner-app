@@ -243,6 +243,44 @@ function displayNewTrip(currentTrip){
     displayActiveTrips(currentTrip);
 }
 
+function loginAndDisplayDash(loginInfo){
+    fetch('/api/auth/login', {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify(loginInfo)
+    })
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error (response.statusText);
+    })
+    .then(responseJson => {
+        user.authToken = responseJson.authToken;
+        user.username = responseJson.username;
+        getAndDisplayActiveTrips();
+    });
+}
+
+function createNewUser(newInfo){
+    fetch('/api/users/', {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify(newInfo)
+    })
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error (response.statusText);
+    })
+    .then(() => {
+        loginAndDisplayDash(newInfo);
+    });
+}
+
 function addAndDisplayNewTrip(){
     const updateData = {destination: {}, dates: {}};
     updateData.name = $('#js-trip-name').val();
@@ -281,7 +319,6 @@ function displayNewItem(newItem){
     <button class="js-delete item">Delete Item</button>
     </li>`)
     $('#packing-list').append('<button class="js-add item">Add Item</button>')
-
 }
 
 function prefillItemForm(currentItem){
@@ -538,20 +575,28 @@ function displayActiveTrips(responseJson){
 
 function getAndDisplayActiveTrips(){
     $('#login-page').prop('hidden', true);
+    $('#signup-page').prop('hidden', true);
     $('#current-trip').prop('hidden', true);
     getActiveTrips(displayActiveTrips);
 }
 
-function displaySignupForm(){
-    $('#login-page').empty().append(`<form id="signup-form" class="js-signup-form">
-    <label for="new-username">Username</label>
-    <input type="text" name="new-username" id="js-new-username">
-    <label for="new-password">Password</label>
-    <input type="text" name="new-password" id="js-new-password">
-    <label for="confirm-password">Confirm Password</label>
-    <input type="text" name="confirm-password" id="js-confirm-password">
-    <input type="submit" id="js-submit-signup" value="Sign Up for Account">
-</form>`)
+// function displaySignupForm(){
+//     $('#login-page').empty().append(`<form id="signup-form" class="js-signup-form">
+//     <label for="new-username">Username</label>
+//     <input type="text" name="new-username" id="js-new-username">
+//     <label for="new-password">Password</label>
+//     <input type="text" name="new-password" id="js-new-password">
+//     <label for="confirm-password">Confirm Password</label>
+//     <input type="text" name="confirm-password" id="js-confirm-password">
+//     <input type="submit" id="js-submit-signup" value="Sign Up for Account">
+// </form>`)
+// }
+
+function displayLogin(){
+    $('#active-trips').empty().prop('hidden', true);
+    $('#current-trip').empty().prop('hidden', true);        
+    $('#logout-button').prop('hidden', true);
+    $('#login-page').prop('hidden', false);
 }
 
 function watchForSubmits(){
@@ -679,7 +724,6 @@ function watchDashboard(){
 
     $('#active-trips').on('submit','.js-details-form',(event) => {
         event.preventDefault();
-        const selected = $(event.currentTarget);
         addAndDisplayNewTrip();
     });
 }
@@ -691,42 +735,40 @@ function watchLogin(){
         const username = $('#js-username').val();
         const password = $('#js-password').val();
 
-        fetch('/api/auth/login', {
-            method: "POST",
-            mode: "cors",
-            headers: {
-                "Content-Type": "application/json; charset=utf-8"
-            },
-            body: JSON.stringify({username, password})
-        })
-        .then(response => {
-            if (response.ok) return response.json();
-            throw new Error (response.statusText);
-        })
-        .then(responseJson => {
-            user.authToken = responseJson.authToken;
-            user.username = responseJson.username;
-            getAndDisplayActiveTrips();
-        });
+        $('#js-username').val('');
+        $('#js-password').val('');
 
-
-        //TODO: validate login information
-        // const validLogin = true;
-        // if(validLogin) {
-
-        // } 
+        loginAndDisplayDash({username, password});
     });
 
     $('#signup-redirect').click(event => {
         event.preventDefault();
-        displaySignupForm();
-    })
+        $('#js-username').val('');
+        $('#js-password').val('');
+        $('#login-page').prop('hidden', true);
+        $('#signup-page').prop('hidden', false);
+    });
 
-    $('#js-submit-signup').submit(event => {
+    $('.js-signup-form').submit(event => {
         event.preventDefault();
 
+        const newUsername = $('#js-new-username').val();
+        const newPassword = $('#js-new-password').val();
+        const confirmPassword = $('#js-confirm-password').val();
+        
+        if(newPassword !== confirmPassword){
+            $('#js-new-password').val('');
+            $('#js-confirm-password').val('');
+            $('#login-page').append('<p>Passwords do not match. Try again.</p>');
+        } else {
+            $('#js-new-username').val('');
+            $('#js-new-password').val('');
+            $('#js-confirm-password').val('');
+            createNewUser({username: newUsername, password: newPassword});
+        }
+
         //TODO: add the account and sign into the dashboard
-    })
+    });
 }
 
 function watchLogout(){
@@ -735,12 +777,9 @@ function watchLogout(){
 
         user.authToken = null;
         user.username = null;
-
-        //TODO move these into a new function
-        $('#active-trips').empty().prop('hidden', true);
-        $('#current-trip').empty().prop('hidden', true);        
-        $('#logout-button').prop('hidden', true);
-        $('#login-page').prop('hidden', false);
+        
+        //return to login page
+        displayLogin();
     });
 }
 

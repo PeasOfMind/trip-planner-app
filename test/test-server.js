@@ -5,7 +5,7 @@ const chaiHttp = require('chai-http');
 const mongoose = require('mongoose');
 const faker = require('faker');
 
-const {Trip} = require('../models');
+const {Trip} = require('../trips');
 const {app, runServer, closeServer} = require('../server');
 const {TEST_DATABASE_URL} = require('../config');
 
@@ -107,7 +107,7 @@ describe('Trip API resource', function(){
 
             let res;
             return chai.request(app)
-            .get('/trips')
+            .get('/api/trips')
             .then(function(_res){
                 res = _res;
                 expect(res).to.have.status(200);
@@ -122,7 +122,7 @@ describe('Trip API resource', function(){
         it('should return trips with the right fields', function(){
             let resTrip;
             return chai.request(app)
-            .get('/trips')
+            .get('/api/trips')
             .then(function(res){
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -158,7 +158,7 @@ describe('Trip API resource', function(){
                 resTrip = trip;
 
                 return chai.request(app)
-                .get(`/trips/${resTrip.id}`)
+                .get(`/api/trips/${resTrip.id}`)
             })
             .then(function(res){
                 expect(res).to.have.status(200);
@@ -185,7 +185,7 @@ describe('Trip API resource', function(){
                 trip = _trip;
                 currentPlace = trip.savedPlaces[0];
                 return chai.request(app)
-                .get(`/trips/${trip.id}/places/${currentPlace.id}`)
+                .get(`/api/trips/${trip.id}/places/${currentPlace.id}`)
             })
             .then(function(res){
                 expect(res).to.have.status(200);
@@ -207,7 +207,7 @@ describe('Trip API resource', function(){
                 trip = _trip;
                 currentItem = trip.packingList[0];
                 return chai.request(app)
-                .get(`/trips/${trip.id}/packingList/${currentItem.id}`)
+                .get(`/api/trips/${trip.id}/packingList/${currentItem.id}`)
             })
             .then(function(res){
                 expect(res).to.have.status(200);
@@ -224,7 +224,7 @@ describe('Trip API resource', function(){
             const newTrip = generateTripData();
 
             return chai.request(app)
-            .post('/trips')
+            .post('/api/trips')
             .send(newTrip)
             .then(function(res){
                 expect(res).to.have.status(201);
@@ -264,7 +264,7 @@ describe('Trip API resource', function(){
                 updateData.id = trip.id;
                 
                 return chai.request(app)
-                .put(`/trips/${updateData.id}`)
+                .put(`/api/trips/${updateData.id}`)
                 .send(updateData);
             })
             .then(function(res){
@@ -295,7 +295,7 @@ describe('Trip API resource', function(){
             return Trip.findOne()
             .then(function(trip){
                 return chai.request(app)
-                .post(`/trips/${trip.id}/places`)
+                .post(`/api/trips/${trip.id}/places`)
                 .send(newData);
             })
             .then(function(res){
@@ -324,7 +324,7 @@ describe('Trip API resource', function(){
                 updateData.id = trip.savedPlaces[0].id;
 
                 return chai.request(app)
-                .put(`/trips/${tripId}/places/${updateData.id}`)
+                .put(`/api/trips/${tripId}/places/${updateData.id}`)
                 .send(updateData);
             })
             .then(function(res){
@@ -352,7 +352,7 @@ describe('Trip API resource', function(){
             return Trip.findOne()
             .then(function(trip){
                 return chai.request(app)
-                .post(`/trips/${trip.id}/packingList`)
+                .post(`/api/trips/${trip.id}/packingList`)
                 .send(newData);
             })
             .then(function(res){
@@ -379,7 +379,7 @@ describe('Trip API resource', function(){
                 updateData.id = trip.packingList[0].id;
 
                 return chai.request(app)
-                .put(`/trips/${tripId}/packingList/${updateData.id}`)
+                .put(`/api/trips/${tripId}/packingList/${updateData.id}`)
                 .send(updateData);
             })
             .then(function(res){
@@ -404,7 +404,7 @@ describe('Trip API resource', function(){
             .then(function(_trip){
                 trip = _trip;
                 return chai.request(app)
-                .delete(`/trips/${trip.id}`);
+                .delete(`/api/trips/${trip.id}`);
             })
             .then(function(res){
                 expect(res).to.have.status(204);
@@ -416,7 +416,7 @@ describe('Trip API resource', function(){
         });
     });
 
-    describe('DELETE endpoint for /trips/:id/places/:placeId', function(){
+    describe('DELETE endpoint for /api/trips/:id/places/:placeId', function(){
         it('should delete a place by id', function(){
             let trip;
             let placeId;
@@ -425,7 +425,7 @@ describe('Trip API resource', function(){
                 trip = _trip;
                 placeId = trip.savedPlaces[0].id;
                 return chai.request(app)
-                .delete(`/trips/${trip.id}/places/${placeId}`);
+                .delete(`/api/trips/${trip.id}/places/${placeId}`);
             })
             .then(function(res){
                 expect(res).to.have.status(204);
@@ -438,14 +438,14 @@ describe('Trip API resource', function(){
         });
     });
 
-    describe('DELETE endpoint for /trips/:id/packingList', function(){
+    describe('DELETE endpoint for /api/trips/:id/packingList', function(){
         it('should delete all items in the packing list', function(){
             let tripId;
             return Trip.findOne()
             .then(function(trip){
                 tripId = trip.id;
                 return chai.request(app)
-                .delete(`/trips/${tripId}/packingList`);
+                .delete(`/api/trips/${tripId}/packingList`);
             })
             .then(function(res){
                 expect(res).to.have.status(204);
@@ -457,7 +457,7 @@ describe('Trip API resource', function(){
         })
     })
 
-    describe('DELETE endpoint for /trips/:id/packingList/:listId', function(){
+    describe('DELETE endpoint for /api/trips/:id/packingList/:listId', function(){
         it('should delete a packing list item by id', function(){
             let trip;
             let listId;
@@ -466,7 +466,7 @@ describe('Trip API resource', function(){
                 trip = _trip;
                 listId = trip.packingList[0].id;
                 return chai.request(app)
-                .delete(`/trips/${trip.id}/packingList/${listId}`);
+                .delete(`/api/trips/${trip.id}/packingList/${listId}`);
             })
             .then(function(res){
                 expect(res).to.have.status(204);

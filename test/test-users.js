@@ -2,7 +2,6 @@
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const faker = require('faker');
 
 const {app, runServer, closeServer} = require('../server');
 const {User} = require('../users');
@@ -13,10 +12,8 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('/api/user', function(){
-    const username = faker.internet.userName;
-    const password = faker.internet.password;
-    const usernameB = faker.internet.userName;
-    const passwordB = faker.internet.password;
+    const username = 'exampleUser';
+    const password = 'examplePass123';
 
     before(function(){
         return runServer(TEST_DATABASE_URL);
@@ -34,21 +31,26 @@ describe('/api/user', function(){
 
     describe('/api/users', function(){
         describe('POST', function(){
-            it('Should reject users with missing username', function(){
+            it.only('Should reject users with missing username', function(){
                 return chai.request(app)
                 .post('/api/users')
                 .send({password})
-                .then(() => expect.fail(null, null, 'Request should not succeed'))
-                .catch(err => {
-                    if(err instanceof chai.AssertionError){
-                        throw err;
-                    }
-                    const res = err.response;
+                .then((res) => {
+                    // const res = err.response;
+                    console.log('the res is:',res.body);
                     expect(res).to.have.status(422);
                     expect(res.body.reason).to.equal('ValidationError');
                     expect(res.body.message).to.equal('Missing field');
                     expect(res.body.location).to.equal('username');
+                    // expect.fail(null, null, 'Request should not succeed');
                 });
+                // .catch(err => {
+                //     console.log('the err is:', err);
+                //     if(err instanceof chai.AssertionError){
+                //         console.log('the err is an assertionError');
+                //         throw err;
+                //     }
+                // });
             });
 
             it('Should reject users with missing password', function(){

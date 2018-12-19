@@ -1,18 +1,19 @@
 'use strict';
 
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const morgan = require('morgan');
 const cors = require('cors');
+const passport = require('passport');
 
 mongoose.Promise = global.Promise;
 
 const { PORT, DATABASE_URL } = require('./config');
-// const { Trip } = require('./models');
 const { router: tripRouter } = require('./trips');
 const { router: authRouter, localStrategy, jwtStrategy} = require('./auth');
-const { router: userRouter} = require('./users');
+const { router: usersRouter} = require('./users');
 
 app.use(express.static('public'));
 app.use(morgan('common'));
@@ -20,7 +21,7 @@ app.use(morgan('common'));
 app.use(express.json());
 
 //CORS
-app.use(cors);
+app.use(cors());
 
 passport.use(localStrategy);
 passport.use(jwtStrategy);
