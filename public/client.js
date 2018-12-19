@@ -1,5 +1,9 @@
-'use strict'
+'use strict';
 
+const user = {
+    username: null,
+    authToken: null
+};
 // const MOCK_TRIP_DATA = {
 //     trips: [ 
 //         {
@@ -82,7 +86,7 @@
 // }
 
 function getActiveTrips(callback){
-    fetch('/trips')
+    fetch('/api/trips')
     .then(response => {
         if (response.ok) return response.json();
         throw new Error (response.statusText);
@@ -91,7 +95,7 @@ function getActiveTrips(callback){
 }
 
 function getSelectedTrip(callback, id, shouldEdit){
-    fetch(`/trips/${id}`)
+    fetch(`/api/trips/${id}`)
     .then(response => {
         if (response.ok) return response.json();
         throw new Error (response.statusText);
@@ -100,7 +104,7 @@ function getSelectedTrip(callback, id, shouldEdit){
 }
 
 function getSelectedPlace(callback, id, placeId){
-    fetch(`/trips/${id}/places/${placeId}`)
+    fetch(`/api/trips/${id}/places/${placeId}`)
     .then(response => {
         if (response.ok) return response.json();
         throw new Error (response.statusText);
@@ -109,7 +113,7 @@ function getSelectedPlace(callback, id, placeId){
 }
 
 function getSelectedItem(callback, id, itemId){
-    fetch(`/trips/${id}/packingList/${itemId}`)
+    fetch(`/api/trips/${id}/packingList/${itemId}`)
     .then(response => {
         if (response.ok) return response.json();
         throw new Error (response.statusText);
@@ -117,8 +121,24 @@ function getSelectedItem(callback, id, itemId){
     .then(responseJson => callback(responseJson))
 }
 
+function addNewTrip(callback, updateData){
+    fetch('/api/trips', {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify(updateData)
+    })
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error (response.statusText);
+    })
+    .then(responseJson => callback(responseJson));
+}
+
 function addNewPlace(callback, id, updateData){
-    fetch(`/trips/${id}/places`, {
+    fetch(`/api/trips/${id}/places`, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -134,7 +154,7 @@ function addNewPlace(callback, id, updateData){
 }
 
 function addNewItem(callback, id, updateData){
-    fetch(`/trips/${id}/packingList`, {
+    fetch(`/api/trips/${id}/packingList`, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -150,7 +170,7 @@ function addNewItem(callback, id, updateData){
 }
 
 function editTrip(callback, updateData){
-    fetch(`/trips/${updateData.id}`, {
+    fetch(`/api/trips/${updateData.id}`, {
         method: "PUT",
         mode: "cors",
         headers: {
@@ -162,7 +182,7 @@ function editTrip(callback, updateData){
 }
 
 function editPlace(callback, id, placeId, updateData){
-    fetch(`/trips/${id}/places/${placeId}`, {
+    fetch(`/api/trips/${id}/places/${placeId}`, {
         method: "PUT",
         mode: "cors",
         headers: {
@@ -174,7 +194,7 @@ function editPlace(callback, id, placeId, updateData){
 }
 
 function editItem(callback, id, itemId, updateData){
-    fetch(`/trips/${id}/packingList/${itemId}`, {
+    fetch(`/api/trips/${id}/packingList/${itemId}`, {
         method: "PUT",
         mode: "cors",
         headers: {
@@ -187,7 +207,7 @@ function editItem(callback, id, itemId, updateData){
 
 
 function deleteTripFromDatabase(callback, id){
-    fetch(`/trips/${id}`, {method: "DELETE"})
+    fetch(`/api/trips/${id}`, {method: "DELETE"})
     .then(response => {
         if (!response.ok) throw new Error (response.statusText);
     })
@@ -195,7 +215,7 @@ function deleteTripFromDatabase(callback, id){
 }
 
 function deletePlaceFromTrip(callback, id, placeId){
-    fetch(`/trips/${id}/places/${placeId}`, {method: "DELETE"})
+    fetch(`/api/trips/${id}/places/${placeId}`, {method: "DELETE"})
     .then(response => {
         if (!response.ok) throw new Error (response.statusText);
     })
@@ -203,7 +223,7 @@ function deletePlaceFromTrip(callback, id, placeId){
 }
 
 function deletePackingListFromTrip(callback, id){
-    fetch(`/trips/${id}/packingList`, {method: "DELETE"})
+    fetch(`/api/trips/${id}/packingList`, {method: "DELETE"})
     .then(response => {
         if (!response.ok) throw new Error (response.statusText);
     })
@@ -211,11 +231,26 @@ function deletePackingListFromTrip(callback, id){
 }
 
 function deletePackingItemFromTrip(callback,id, itemId){
-    fetch(`/trips/${id}/packingList/${itemId}`, {method: "DELETE"})
+    fetch(`/api/trips/${id}/packingList/${itemId}`, {method: "DELETE"})
     .then(response => {
         if (!response.ok) throw new Error (response.statusText);
     })
     .then(() => callback(id, true));
+}
+
+function displayNewTrip(currentTrip){
+    $('#details-form').remove();
+    displayActiveTrips(currentTrip);
+}
+
+function addAndDisplayNewTrip(){
+    const updateData = {destination: {}, dates: {}};
+    updateData.name = $('#js-trip-name').val();
+    updateData.destination.location = $('#js-location').val();
+    updateData.destination.country = $('#js-country').val();
+    updateData.dates.start = $('#js-start-date').val();
+    updateData.dates.end = $('#js-end-date').val();
+    addNewTrip(displayNewTrip, updateData);
 }
 
 function updateAndDisplayItemDetails(inputData, id, itemId){
@@ -369,22 +404,25 @@ function getAndDisplayPlaceForm(selectedId, placeId){
     getSelectedPlace(prefillPlaceForm, selectedId, placeId);
 }
 
+function displayDetailsForm(isNew){
+    return `<form id="details-form" class="js-details-form">
+    <label for="trip-name">Trip Name</label>
+    <input type="text" name="trip-name" id="js-trip-name">
+    <label for="location">Location</label>
+    <input type="text" name="location" id="js-location">
+    <label for="country">Country</label>
+    <input type="text" name="country" id="js-country">
+    <label for="start-date">Start Date</label>
+    <input type="date" name="start-date" id="js-start-date">
+    <label for="end-date">End Date</label>
+    <input type="date" name="end-date" id="js-end-date">
+    <input type="submit" id="js-submit-details" ${isNew ? `value="Add New Trip"`: `value="Submit Edits"`}>
+</form>`
+}
+
 //Turn the trip details section into a editable form
 function getAndDisplayDetailsForm(selectedId){
-    $('#trip-details').empty().append(`
-    <form id="details-form" class="js-details-form">
-        <label for="trip-name">Trip Name</label>
-        <input type="text" name="trip-name" id="js-trip-name">
-        <label for="location">Location</label>
-        <input type="text" name="location" id="js-location">
-        <label for="country">Country</label>
-        <input type="text" name="country" id="js-country">
-        <label for="start-date">Start Date</label>
-        <input type="date" name="start-date" id="js-start-date">
-        <label for="end-date">End Date</label>
-        <input type="date" name="end-date" id="js-end-date">
-        <input type="submit" id="js-submit-details" value="Submit Edits">
-    </form>`)
+    $('#trip-details').empty().append(`${displayDetailsForm(false)}`)
     getSelectedTrip(prefillDetailsForm, selectedId);
 }
 
@@ -402,11 +440,11 @@ function generateListButtons(currentTrip){
     }
 }
 
-function displayPackingList(tripObject){
+function displayPackingList(currentTrip){
     let listArray = [];
-    if (tripObject.packingList.length > 0){
-        for (let index = 0; index < tripObject.packingList.length; index++){
-            let listItem = tripObject.packingList[index]; 
+    if (currentTrip.packingList.length > 0){
+        for (let index = 0; index < currentTrip.packingList.length; index++){
+            let listItem = currentTrip.packingList[index]; 
             listArray.push(`<li data-list-id="${listItem.id}" data-checked="${
                 listItem.packed}" ${listItem.packed ? "class = packing-item_checked" : ''}>${listItem.item}</li>`)
         }
@@ -414,7 +452,6 @@ function displayPackingList(tripObject){
         return `<h4>Packing List</h4>
         <ul id="item-list">${listHTML}</ul>`
     } else return '<h4>No Items in Packing List Yet</h4>'
-    //TODO: add item button to packing list when packing list is empty
 }
 
 function displayOnePlace(place){
@@ -423,17 +460,19 @@ function displayOnePlace(place){
     <p class="place-type">Type: ${place.type}</p>`
 }
 
-function displaySavedPlaces(tripObject, shouldEdit){
-    let placeHTML = [];
-    for (let index = 0; index < tripObject.savedPlaces.length; index++) {
-        let place = tripObject.savedPlaces[index];
-        placeHTML.push(`<div class="saved-place" data-place-id="${place.id}">
-        ${shouldEdit ? `<button class="js-edit place">Edit Place Details</button>
-        <button class="js-delete place">Delete Place</button>`: ''}
-        ${displayOnePlace(place)}
-        </div>`);
-    }
-    return placeHTML.join('');
+function displaySavedPlaces(currentTrip, shouldEdit){
+    let placeHTML = ['<h4>Bookmarked Places</h4>'];
+    if (currentTrip.savedPlaces.length > 0){
+        for (let index = 0; index < currentTrip.savedPlaces.length; index++) {
+            let place = currentTrip.savedPlaces[index];
+            placeHTML.push(`<div class="saved-place" data-place-id="${place.id}">
+            ${shouldEdit ? `<button class="js-edit place">Edit Place Details</button>
+            <button class="js-delete place">Delete Place</button>`: ''}
+            ${displayOnePlace(place)}
+            </div>`);
+        }
+        return placeHTML.join('');
+    } else return '<h4>No Bookmarked Places Yet</h4>';
 }
 
 function displayTripDetails(currentTrip){
@@ -455,7 +494,6 @@ function displaySelectedTrip(currentTrip, shouldEdit){
     ${displayTripDetails(currentTrip)}
     </div>
     <div id="saved-places">
-    <h4>Bookmarked Places</h4>
     ${displaySavedPlaces(currentTrip, shouldEdit)}
     ${shouldEdit ? '<button class="js-add place">Add A New Place</button>': ''}
     </div>
@@ -475,20 +513,26 @@ function getAndDisplaySelectedTrip(id, shouldEdit){
     getSelectedTrip(displaySelectedTrip, id, shouldEdit);
 }
 
+function displayOneTrip(currentTrip){
+    $('#active-trips').append(`<div data-id=${currentTrip.id}>
+    <h2>${currentTrip.name}</h2>
+    <h3>${currentTrip.destination.location}</h3>
+    <button class="view-trip">View Trip</button>
+    <button class="edit-trip">Edit Trip</button>
+    <button class="delete-trip">Delete Trip</button>
+    </div>`);
+}
+
 //Show all trips that user has created
 function displayActiveTrips(responseJson){
-
-    for (let index = 0; index < responseJson.trips.length; index++) {
-        let currentTrip = responseJson.trips[index];
-        $('#active-trips').append(`<div data-id=${currentTrip.id}>
-        <h2>${currentTrip.name}</h2>
-        <h3>${currentTrip.destination.location}</h3>
-        <button class="view-trip">View Trip</button>
-        <button class="edit-trip">Edit Trip</button>
-        <button class="delete-trip">Delete Trip</button>
-        </div>`);
+    if(responseJson.trips){
+        for (let index = 0; index < responseJson.trips.length; index++) {
+            let currentTrip = responseJson.trips[index];
+            displayOneTrip(currentTrip);
+        }
     }
-    $('#active-trips').prop('hidden', false);
+    else displayOneTrip(responseJson);
+    $('#active-trips').append('<button class="add-trip">Add New Trip</button>').prop('hidden', false);
     $('#logout-button').prop('hidden', false);
 }
 
@@ -496,6 +540,18 @@ function getAndDisplayActiveTrips(){
     $('#login-page').prop('hidden', true);
     $('#current-trip').prop('hidden', true);
     getActiveTrips(displayActiveTrips);
+}
+
+function displaySignupForm(){
+    $('#login-page').empty().append(`<form id="signup-form" class="js-signup-form">
+    <label for="new-username">Username</label>
+    <input type="text" name="new-username" id="js-new-username">
+    <label for="new-password">Password</label>
+    <input type="text" name="new-password" id="js-new-password">
+    <label for="confirm-password">Confirm Password</label>
+    <input type="text" name="confirm-password" id="js-confirm-password">
+    <input type="submit" id="js-submit-signup" value="Sign Up for Account">
+</form>`)
 }
 
 function watchForSubmits(){
@@ -615,28 +671,72 @@ function watchDashboard(){
         } else if (selected.hasClass('delete-trip')){
             $('#active-trips').empty();
             deleteTripFromDatabase(getAndDisplayActiveTrips,selectedId);
+        } else if (selected.hasClass('add-trip')){
+            $('.add-trip').remove();
+            $('#active-trips').append(displayDetailsForm(true));
         }
     }));
+
+    $('#active-trips').on('submit','.js-details-form',(event) => {
+        event.preventDefault();
+        const selected = $(event.currentTarget);
+        addAndDisplayNewTrip();
+    });
 }
 
 function watchLogin(){
-    $('.js-login-form').submit( event => {
+    $('.js-login-form').submit(event => {
         event.preventDefault();
 
-        //TODO: validate login information
-        const validLogin = true;
-        if(validLogin) {
-            getAndDisplayActiveTrips();
-        } 
+        const username = $('#js-username').val();
+        const password = $('#js-password').val();
 
+        fetch('/api/auth/login', {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            body: JSON.stringify({username, password})
+        })
+        .then(response => {
+            if (response.ok) return response.json();
+            throw new Error (response.statusText);
+        })
+        .then(responseJson => {
+            user.authToken = responseJson.authToken;
+            user.username = responseJson.username;
+            getAndDisplayActiveTrips();
+        });
+
+
+        //TODO: validate login information
+        // const validLogin = true;
+        // if(validLogin) {
+
+        // } 
     });
+
+    $('#signup-redirect').click(event => {
+        event.preventDefault();
+        displaySignupForm();
+    })
+
+    $('#js-submit-signup').submit(event => {
+        event.preventDefault();
+
+        //TODO: add the account and sign into the dashboard
+    })
 }
 
 function watchLogout(){
     $('#logout-button').click(event => {
         event.preventDefault();
 
-        //TODO: destroy JTW key
+        user.authToken = null;
+        user.username = null;
+
+        //TODO move these into a new function
         $('#active-trips').empty().prop('hidden', true);
         $('#current-trip').empty().prop('hidden', true);        
         $('#logout-button').prop('hidden', true);
