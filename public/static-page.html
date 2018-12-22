@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en"><head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +19,7 @@
                     <label for="username">Username</label>
                     <input name="username" type="text" id="js-username">
                     <label for="password">Password</label>
-                    <input name="password" type="password" id="js-password">
+                    <input name="password" type="text" id="js-password">
                     <input type="submit" value="Log In">
                 </form>
                 <p>New User?</p>
@@ -29,71 +30,61 @@
                     <label for="new-username">Username</label>
                     <input type="text" name="new-username" id="js-new-username">
                     <label for="new-password">Password</label>
-                    <input type="password" name="new-password" id="js-new-password">
+                    <input type="text" name="new-password" id="js-new-password">
                     <label for="confirm-password">Confirm Password</label>
-                    <input type="password" name="confirm-password" id="js-confirm-password">
+                    <input type="text" name="confirm-password" id="js-confirm-password">
                     <input type="submit" id="js-submit-signup" value="Sign Up for Account">
                 </form>
-                <button id="login-redirect">Back To Login Page</button>
             </div>
             <div id="active-trips" hidden=""></div>
             <div id="current-trip" data-id="5c12fab28421a4138eca146e"><div id="trip-details">
         <button class="js-edit details"><i class="far fa-edit"></i></button>
         <h2 class="trip-name">Winter Family Trip</h2>
-        <h3 class="destination">Thailand</h3>
-        <h3 class="date">1/28/2019 to 2/5/2019</h3>
+        <h3 class="destination">Bangkok, Thailand</h3>
+        <h3 class="date">1/22/2019 to 2/5/2019</h3>
         </div>
         <div id="saved-places">
-        <h4 class="places-header">Bookmarked Places</h4><form class="add-place-form js-place-form">
-        <div class="place-form-entry">
-        <label for="place-name">Name</label>
-        <input type="text" name="place-name" class="js-place-name">
-        </div>
-        <div class="place-form-entry">
-        <label for="address">Address</label>
-        <input type="text" name="address" class="js-address">
-        </div>
-        <div class="place-form-entry">
-        <label for="place-type">Type</label>
-        <input type="text" name="place-type" class="js-place-type">
-        </div>
-        <input type="submit" class="js-submit-place" value="Add Place">
-        <button class="js-remove-form">Cancel</button>
-        </form><div class="saved-place" data-place-id="5c1430626213d90856085c0b">
+        <h4>Bookmarked Places</h4><div class="saved-place" data-place-id="5c1430626213d90856085c0b">
                 <button class="js-edit place edit-place"><i class="far fa-edit"></i></button>
                 <button class="js-delete place delete-place"><i class="far fa-trash-alt"></i></button>
                 <h5 class="place-name">Temple of the Reclining Buddha</h5>
-        <p class="place-address">2 Sanamchai Road, Grand Palace, Pranakorn, 10200</p>
-        <p class="place-type">Type: Religious Site</p>
+        <p class="place-address">Address: 2 Sanamchai Road, Grand Palace, Pranakorn, 10200</p>
+        <p class="place-type">Type: Restaurant</p>
                 </div><div class="saved-place" data-place-id="5c1437d36909fe08df92ec85">
                 <button class="js-edit place edit-place"><i class="far fa-edit"></i></button>
                 <button class="js-delete place delete-place"><i class="far fa-trash-alt"></i></button>
                 <h5 class="place-name">Thai Curry</h5>
-        <p class="place-address">123 Main Street, Changmai, 10000</p>
+        <p class="place-address">Address: 123 Main Street, Changmai, 10000</p>
         <p class="place-type">Type: Restaurant</p>
                 </div><div class="saved-place" data-place-id="5c1438e19eb8a208f6eb11b1">
                 <button class="js-edit place edit-place"><i class="far fa-edit"></i></button>
                 <button class="js-delete place delete-place"><i class="far fa-trash-alt"></i></button>
                 <h5 class="place-name">Night Market</h5>
-        <p class="place-address">Alley Street, Main City, 20000</p>
+        <p class="place-address">Address: Alley Street, Main CIty, 20000</p>
         <p class="place-type">Type: Market</p>
                 </div>
         
-        </div>
+        <form class="add-place js-place-form">
+        <label for="place-name">Place Name</label>
+        <input type="text" name="place-name" class="js-place-name">
+        <label for="address">Address</label>
+        <input type="text" name="address" class="js-address">
+        <label for="place-type">Place Type</label>
+        <input type="text" name="place-type" class="js-place-type">
+        <input type="submit" class="js-submit-place" value="Add to Bookmarked Places">
+        </form></div>
         <div id="packing-list">
         
-        <h4 class="packing-header">Packing List</h4><form class="add-item-form item-form">
-            <div class="form-container">
-                <input type="text" class="js-item">
-                <input type="submit" class="js-submit-item" value="Add">
-                <input type="button" class="js-remove-form" value="Cancel">
-            </div>
-        </form>
+        <h4>Packing List</h4>
             <ul id="item-list"><li data-list-id="5c12fab28421a4138eca1471" data-checked="false">US passport 
             <button class="js-delete item delete-item">×</button></li><li data-list-id="5c12fab28421a4138eca1470" data-checked="false">foreign currency 
+            <button class="js-delete item delete-item">×</button></li><li data-list-id="5c1436fa77a48f08d29c149a" data-checked="false">antacid 
             <button class="js-delete item delete-item">×</button></li><li data-list-id="5c1437f96909fe08df92ec86" data-checked="false">phone charger 
             <button class="js-delete item delete-item">×</button></li></ul>
-        </div>
+        <form class="add-item item-form">
+        <input type="text" class="js-item">
+        <input type="submit" class="js-submit-item" value="Add To Packing List">
+        </form></div>
         <button class="view-trip">View Trip</button>
         <button class="delete-trip">Delete Trip</button>
         <button class="dashboard-redirect">Back to Dashboard

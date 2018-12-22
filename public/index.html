@@ -5,38 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Trip Planner App</title>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans|Montserrat" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+    <link rel="stylesheet" href="default.css">
+    <link rel="stylesheet" href="main.css">
 </head>
 <body>
     <header>
         <h1>Plan Your Trip</h1>
     </header>
-    <div id="login-page">
-        <form id="login" class="js-login-form">
-            <label for="username">Username</label>
-            <input name="username" type="text" id="js-username">
-            <label for="password">Password</label>
-            <input name="password" type="text" id="js-password">
-            <input type="submit" value="Log In">
-        </form>
-        <p>New User?</p>
-        <button id="signup-redirect">Sign Up Here</button>
-    </div>
-    <div id="signup-page" hidden>
-        <form id="signup-form" class="js-signup-form">
-            <label for="new-username">Username</label>
-            <input type="text" name="new-username" id="js-new-username">
-            <label for="new-password">Password</label>
-            <input type="text" name="new-password" id="js-new-password">
-            <label for="confirm-password">Confirm Password</label>
-            <input type="text" name="confirm-password" id="js-confirm-password">
-            <input type="submit" id="js-submit-signup" value="Sign Up for Account">
-        </form>
-    </div>
-    <div id="active-trips" hidden>
-    </div>
-    <div id="current-trip" hidden>
-    </div>
-    <button id="logout-button" class="js-logout" hidden>Log Out</button>
+    <main>
+        <div id="login-page">
+            <form id="login" class="js-login-form">
+                <label for="username">Username</label>
+                <input name="username" type="text" id="js-username">
+                <label for="password">Password</label>
+                <input name="password" type="password" id="js-password">
+                <input type="submit" value="Log In">
+            </form>
+            <p>New User?</p>
+            <button id="signup-redirect">Sign Up Here</button>
+            <p id="demo-note">To demo this app, use the following credentials:
+                <br>username: newuser1
+                <br>password: password123</p>
+        </div>
+        <div id="signup-page" hidden>
+            <form id="signup-form" class="js-signup-form">
+                <label for="new-username">Username</label>
+                <input type="text" name="new-username" id="js-new-username">
+                <label for="new-password">Password</label>
+                <input type="password" name="new-password" id="js-new-password">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" name="confirm-password" id="js-confirm-password">
+                <input type="submit" id="js-submit-signup" value="Sign Up for Account">
+            </form>
+            <button id="login-redirect">Back To Login Page</button>
+        </div>
+        <div id="active-trips" hidden>
+        </div>
+        <div id="current-trip" hidden>
+        </div>
+        <button id="logout-button" class="js-logout" hidden>Log Out</button>
+    </main>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
     <script type="text/javascript" src="client.js"></script>

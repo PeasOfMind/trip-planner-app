@@ -15,16 +15,14 @@ const packingSchema = mongoose.Schema({
 
 const tripSchema = mongoose.Schema({
     name: {type: String, required: true},
-    destination: {
-        location: {type: String, required: true},
-        country: {type: String, required: true}
-    },
+    destination: {type: String, required: true},
     savedPlaces: [placeSchema],
     packingList: [packingSchema],
     dates: {
         start: {type: Date, required: true},
         end: {type: Date, required: true}
-    }
+    },
+    username: String
 });
 
 //TODO: break out address in savedPlaces into building, street, and zipcode

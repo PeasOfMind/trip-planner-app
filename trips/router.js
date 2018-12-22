@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 
 const {Trip} = require('./models');
+const jwtAuth = passport.authenticate('jwt', { session: false });
 
+router.use(jwtAuth);
 
+//get all trips
 router.get('/', (req,res) => {
-    Trip.find()
+    Trip.find({username: req.user.username})
     .then(trips => {
         res.json({trips: trips.map(trip => trip.serialize())});
     })
@@ -15,8 +19,14 @@ router.get('/', (req,res) => {
     });
 });
 
+//get specific trip by id
 router.get('/:id', (req, res) => {
     Trip.findById(req.params.id)
+    .then(trip => {
+        if(trip.username === req.user.username) return trip;
+        else throw new Error();
+    })
+    .catch(() => res.status(404).json({error: 'trip not found'}))
     .then(trip => res.json(trip.serialize()))
     .catch(err => {
         console.error(err);
@@ -24,6 +34,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
+//get specific place by id
 router.get('/:id/places/:placeId', (req, res) => {
     Trip.findById(req.params.id)
     .then(trip => {
@@ -36,6 +47,7 @@ router.get('/:id/places/:placeId', (req, res) => {
     })
 })
 
+//get specific packing list item by id
 router.get('/:id/packingList/:listId', (req, res) => {
     Trip.findById(req.params.id)
     .then(trip => {
@@ -61,10 +73,7 @@ router.post('/', (req, res) => {
 
     const newPost = {
         name: req.body.name,
-        destination: {
-            location: req.body.destination.location,
-            country: req.body.destination.country
-        },
+        destination: req.body.destination,
         savedPlaces: req.body.savedPlaces ? JSON.parse(JSON.stringify(req.body.savedPlaces)) : [],
         packingList: req.body.packingList ? JSON.parse(JSON.stringify(req.body.packingList)) : [],
         dates: {
@@ -72,6 +81,8 @@ router.post('/', (req, res) => {
             end: new Date(req.body.dates.end)
         }
     };
+
+    if (req.user) newPost.username = req.user.username;
 
     Trip.create(newPost)
     .then(trip => res.status(201).json(trip.serialize()))
@@ -91,10 +102,7 @@ router.put('/:id', (req, res) => {
     //TODO: add update ability for saved places and packing list
     const updated = {
         name: req.body.name,
-        destination: {
-            location: req.body.destination.location,
-            country: req.body.destination.country
-        },
+        destination: req.body.destination,
         dates: {
             start: new Date(req.body.dates.start),
             end: new Date(req.body.dates.end)
@@ -102,8 +110,8 @@ router.put('/:id', (req, res) => {
     };
 
     Trip.findByIdAndUpdate(req.params.id, { $set: updated}, {new: true} )
-    .then(updatedTrip => res.status(204).end())
-    .catch(err => res.status(500).json({message: 'Trip details could not be updated'})
+    .then(() => res.status(204).end())
+    .catch(() => res.status(500).json({message: 'Trip details could not be updated'})
     );
 
 });
@@ -126,8 +134,6 @@ router.post('/:id/places', (req,res) => {
         res.status(500).json({message: 'Place details could not be saved'});
     });
 });
-
-//TODO: change put endpoint to /trips/:id/places/:placeId
 
 router.put('/:id/places/:placeId', (req, res) => {
     Trip.findById(req.params.id)
@@ -174,8 +180,7 @@ router.put('/:id/packingList/:listId', (req, res) => {
     .then(trip => {
         if (trip && req.params.listId && req.body.id && req.params.listId === req.body.id){
             const editedList = trip.packingList.id(req.body.id);
-            if (req.body.item) editedList.item = req.body.item;
-            if (req.body.packed) editedList.packed = req.body.packed;
+            Object.keys(req.body).forEach(field => editedList[field] = req.body[field]);
             trip.save();
             return trip.packingList.id(req.body.id);
         }
