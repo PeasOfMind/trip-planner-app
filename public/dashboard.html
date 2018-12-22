@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en"><head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +24,9 @@
                 </form>
                 <p>New User?</p>
                 <button id="signup-redirect">Sign Up Here</button>
+                <p id="demo-note">To demo this app, use the following credentials:
+                    <br>username: newuser1
+                    <br>password: password123</p>
             </div>
             <div id="signup-page" hidden="">
                 <form id="signup-form" class="js-signup-form">
@@ -44,22 +48,7 @@
         <h3 class="date">1/28/2019 to 2/5/2019</h3>
         </div>
         <div id="saved-places">
-        <h4 class="places-header">Bookmarked Places</h4><form class="add-place-form js-place-form">
-        <div class="place-form-entry">
-        <label for="place-name">Name</label>
-        <input type="text" name="place-name" class="js-place-name">
-        </div>
-        <div class="place-form-entry">
-        <label for="address">Address</label>
-        <input type="text" name="address" class="js-address">
-        </div>
-        <div class="place-form-entry">
-        <label for="place-type">Type</label>
-        <input type="text" name="place-type" class="js-place-type">
-        </div>
-        <input type="submit" class="js-submit-place" value="Add Place">
-        <button class="js-remove-form">Cancel</button>
-        </form><div class="saved-place" data-place-id="5c1430626213d90856085c0b">
+        <h4 class="places-header">Bookmarked Places</h4><div class="saved-place" data-place-id="5c1430626213d90856085c0b">
                 <button class="js-edit place edit-place"><i class="far fa-edit"></i></button>
                 <button class="js-delete place delete-place"><i class="far fa-trash-alt"></i></button>
                 <h5 class="place-name">Temple of the Reclining Buddha</h5>
@@ -78,21 +67,21 @@
         <p class="place-address">Alley Street, Main City, 20000</p>
         <p class="place-type">Type: Market</p>
                 </div>
-        
+        <button class="js-add place add-place"><i class="fas fa-plus-circle"></i></button>
         </div>
         <div id="packing-list">
-        
-        <h4 class="packing-header">Packing List</h4><form class="add-item-form item-form">
-            <div class="form-container">
-                <input type="text" class="js-item">
-                <input type="submit" class="js-submit-item" value="Add">
-                <input type="button" class="js-remove-form" value="Cancel">
-            </div>
-        </form>
-            <ul id="item-list"><li data-list-id="5c12fab28421a4138eca1471" data-checked="false">US passport 
-            <button class="js-delete item delete-item">×</button></li><li data-list-id="5c12fab28421a4138eca1470" data-checked="false">foreign currency 
-            <button class="js-delete item delete-item">×</button></li><li data-list-id="5c1437f96909fe08df92ec86" data-checked="false">phone charger 
-            <button class="js-delete item delete-item">×</button></li></ul>
+        <button class="js-add item add-item"><i class="fas fa-plus-circle"></i></button>
+        <h4 class="packing-header">Packing List</h4>
+            <ul id="item-list">
+                <div class="item-container">
+                    <li data-list-id="5c12fab28421a4138eca1471" data-checked="false">US passport</li>
+                    <button class="js-delete item delete-item">×</button>
+                </div>
+                <div class="item-container"> 
+                    <li data-list-id="5c12fab28421a4138eca1470" data-checked="false">foreign currency</li>
+                    <button class="js-delete item delete-item">×</button>
+                </div>
+        </ul>
         </div>
         <button class="view-trip">View Trip</button>
         <button class="delete-trip">Delete Trip</button>

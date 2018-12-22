@@ -78,32 +78,20 @@ input[type="submit"], input[type="button"] {
 }
 
 button:hover, input[type="submit"]:hover, input[type="button"]:hover {
-    background-color: lightgrey;
+    background-color: #E0E0E0;
 }
 
 li {
-    border-bottom: 1px dashed black;
     padding: 5px 0;
-    position: relative;
 }
 
 li:hover {
-    background: lightgrey;
+    background: #E0E0E0;
 }
 
-li > button{
-    position: absolute;
-    border: none;
-    font-size: 1em;
-    bottom: -8px;
-}
-
-li > .js-edit {
-    right: 25px;
-}
 
 i:hover {
-    color: green;
+    color:#43c0ac;
 }
 
 #login > input, #signup-form > input {
@@ -114,6 +102,8 @@ i:hover {
 #demo-note {
     font-size: 0.9em;
     line-height: 1.3;
+    background: #E0E0E0;
+    padding: 10px;
 }
 
 .trip-preview {
@@ -131,6 +121,11 @@ i:hover {
 
 .date {
     margin-right: 35px;
+}
+
+.delete-trip:hover {
+    color: white;
+    background-color: red;
 }
 
 #trip-details {
@@ -195,38 +190,58 @@ i:hover {
 .saved-place > button {
     position: absolute;
     border: none;
-    font-size: 1em;
+    font-size: 1.1em;
     bottom: -10px;
     background-color: white;
 }
 
-.saved-place > .edit-place {
+.edit-place {
     right: 25px;
 }
 
-.saved-place > .delete-place {
+.delete-place {
     right: 0;
+}
+
+.delete-place > i:hover {
+    color: red;
 }
 
 #packing-list {
     position: relative;
 }
 
-#packing-list > button {
+#packing-list > .add-item {
     position: absolute;
-    border: none;
-    font-size: 1em;
-    top: -5px;
-}
-
-#packing-list > .delete-item {
+    top: -8px;
     right: 0;
     color: white;
     background: black;
+    font-size: 1.2em;
+    border: none;
 }
 
-#packing-list > .delete-item:hover {
-    color: green;
+.item-container {
+    display: flex;
+    border-bottom: 1px dashed black;
+    justify-content: space-between;
+}
+
+.item-container > .delete-item {
+    font-size: 1.5em;
+    padding: 0 10px;
+    border: none;
+    margin: 0;
+    
+}
+
+.item-container > li {
+    flex-grow: 1;
+}
+
+.item-container > .delete-item:hover {
+    color: white;
+    background-color: red;
 }
 
 .form-container {
@@ -249,24 +264,6 @@ i:hover {
     background: black;
 } */
 
-#packing-list > .add-item {
-    top: -8px;
-    right: 0;
-    color: white;
-    background: black;
-    font-size: 1.2em;
-}
-
-.delete-item {
-    position: absolute;
-    right: 2px;
-    top: -10px;
-    /* top: 2px; */
-    font-size: 1.5em;
-    padding: 0 5px;
-    background: none;
-}
-
 .packing-item_checked {
     text-decoration: line-through;
     background: darkgrey;
@@ -280,4 +277,12 @@ i:hover {
 
 .error-field {
     border: 1.5px solid red;
+}
+
+@media only screen and (min-width: 600px){
+    main, h1 {
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }

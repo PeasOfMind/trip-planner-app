@@ -280,11 +280,6 @@ function deletePackingItemFromTrip(callback,id, itemId){
     .then(() => callback(id, true));
 }
 
-function displayNewTrip(currentTrip){
-    $('#details-form').remove();
-    displayActiveTrips(currentTrip);
-}
-
 function loginAndDisplayDash(loginInfo, isNewUser){
     fetch('/api/auth/login', {
         method: "POST",
@@ -318,12 +313,29 @@ function createNewUser(newInfo){
         body: JSON.stringify(newInfo)
     })
     .then(response => {
-        if (response.ok) return response.json();
-        throw new Error (response.statusText);
+        return response.json();
+        // if (response.ok) return response.json();
+        // throw new Error (response.statusText);
     })
-    .then(() => {
-        loginAndDisplayDash(newInfo, true);
+    .then(responseJson => {
+        //check if response was okay (200-299)
+        if (responseJson.code < 300 && responseJson.code >= 200) {
+            loginAndDisplayDash(newInfo, true);
+        } else {
+            displaySignupError(responseJson.location, responseJson.message);
+        }
     });
+    // .then(() => {
+    //     loginAndDisplayDash(newInfo, true);
+    // })
+    // .catch(err => {
+    //     console.log(err);
+    // });
+}
+
+function displayNewTrip(currentTrip){
+    $('#details-form').remove();
+    displayActiveTrips(currentTrip);
 }
 
 function addAndDisplayNewTrip(){
@@ -345,7 +357,6 @@ function updateAndDisplayItemDetails(inputData, id){
         updateData.packed = !(inputData.attr('data-checked') === 'true');
         editItem(displayUpdatedItem, id, updateData);
     } else {
-        console.log('new item being added');
         updateData.item = inputData.find('.js-item').val();
         updateData.packed = false;
         addNewItem(displayNewItem, id, updateData);
@@ -355,8 +366,7 @@ function updateAndDisplayItemDetails(inputData, id){
 function displayUpdatedItem(currentItem){
     const selectedLi = $(`li[data-list-id=${currentItem.id}]`);
     selectedLi.empty().attr('data-checked', currentItem.packed)
-    .text(currentItem.item)
-    .append('<button class="js-delete item delete-item">\u00D7</button>');
+    .text(currentItem.item);
     if (currentItem.packed) selectedLi.addClass('packing-item_checked');
     else selectedLi.removeClass('packing-item_checked');
 
@@ -368,10 +378,10 @@ function displayNewItem(newItem){
     if($('.js-no-items').length > 0) {
         $('#packing-list').empty().append('<h4 class="packing-header">Packing List</h4><ul id="item-list"></ul>')
     }
-    $('#item-list').append(`<li data-list-id="${newItem.id}" data-checked="${
+    $('#item-list').append(`<div class="item-container"><li data-list-id="${newItem.id}" data-checked="${
     newItem.packed}" ${newItem.packed ? "class=packing-item_checked" : ''
-    }>${newItem.item} <button class="js-delete item delete-item">\u00D7</button>
-    </li>`)
+    }>${newItem.item} </li>
+    <button class="js-delete item delete-item">\u00D7</button></div>`)
     $('#packing-list').append('<button class="js-add item add-item"><i class="fas fa-plus-circle"></button>')
 }
 
@@ -566,9 +576,9 @@ function displayPackingList(currentTrip, shouldEdit){
     if (currentTrip.packingList.length > 0){
         for (let index = 0; index < currentTrip.packingList.length; index++){
             let listItem = currentTrip.packingList[index]; 
-            listArray.push(`<li data-list-id="${listItem.id}" data-checked="${
-        listItem.packed}" ${listItem.packed ? "class=packing-item_checked" : ''}>${listItem.item} 
-        ${shouldEdit ? '<button class="js-delete item delete-item">\u00D7</button></li>' : ''}`)
+            listArray.push(`<div class="item-container"><li data-list-id="${listItem.id}" data-checked="${
+        listItem.packed}" ${listItem.packed ? "class=packing-item_checked" : ''}>${listItem.item}</li>
+        ${shouldEdit ? '<button class="js-delete item delete-item">\u00D7</button>' : ''}</div>`)
         }
         const listHTML = listArray.join('');
         return `<h4 class="packing-header">Packing List</h4>
@@ -679,6 +689,20 @@ function getAndDisplayActiveTrips(isNewUser){
 //     <input type="submit" id="js-submit-signup" value="Sign Up for Account">
 // </form>`)
 // }
+
+function displaySignupError(errLocation, errMessage){
+    //reset previous errors
+    $('#js-new-password').removeClass('error-field');
+    $('#js-confirm-password').removeClass('error-field');
+    $('.error-msg').remove();
+    if (errLocation === 'username'){
+        $('#js-new-username').addClass('error-field');
+    } else {
+        $('#js-new-password').val('').addClass('error-field');
+        $('#js-confirm-password').val('').addClass('error-field');
+    }
+    $('#js-submit-signup').before(`<p class="error-msg"><i class="fas fa-exclamation-circle"></i> ${errLocation}: ${errMessage}</p>`)
+}
 
 function displayLoginError(){
     $('#js-password')
@@ -796,7 +820,6 @@ function watchForSubmits(){
 
 function watchForAdds(){
     $('#current-trip').on('click', 'button.js-add', (event) => {
-        event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
         if (selected.hasClass('place')){
@@ -810,20 +833,23 @@ function watchForAdds(){
 
 function watchForDeletes(){
     $('#current-trip').on('click', 'button.js-delete', (event) => {
-        event.preventDefault();
         event.stopPropagation();
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
         if (selected.hasClass('place')){
-            //delete the place from the database and refresh page
-            const placeId = selected.parent('div').attr('data-place-id');
-            deletePlaceFromTrip(getAndDisplaySelectedTrip, selectedId, placeId);
+            //prompt user if they want to delete the place
+            const confirmDelete = confirm('Are you sure you want to delete this place?');
+            if (confirmDelete){
+                //delete the place from the database and refresh page
+                const placeId = selected.parent('div').attr('data-place-id');
+                deletePlaceFromTrip(getAndDisplaySelectedTrip, selectedId, placeId);
+            }
         // } else if (selected.hasClass('list')){
         //     //delete the packing list and refresh page
         //     deletePackingListFromTrip(getAndDisplaySelectedTrip, selectedId);
         } else if (selected.hasClass('item')){
             //delete an item on the packing list and refresh page
-            const itemIndex = selected.parent('li').attr('data-list-id');
+            const itemIndex = selected.prev('li').attr('data-list-id');
             deletePackingItemFromTrip(getAndDisplaySelectedTrip, selectedId, itemIndex);
         }
     });
@@ -839,7 +865,6 @@ function watchForDeletes(){
 
 function watchForEdits(){
     $('#current-trip').on('click', 'button.js-edit', (event) => {
-        event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
         if (selected.hasClass('details')){
@@ -871,7 +896,6 @@ function watchForEdits(){
 function watchForCancels(){
     $('#active-trips').on('click', '.js-remove-form', (event) => {
         const selectedForm = $(event.currentTarget).parents('form');
-        console.log('selectedForm is', selectedForm);
         if(selectedForm.hasClass('js-details-form')){
             $('.js-details-form').remove();
             $('#active-trips').append('<button class="add-trip">Add New Trip</button>');
@@ -882,7 +906,6 @@ function watchForCancels(){
         const selectedForm = $(event.currentTarget).parents('form');
         if(selectedForm.hasClass('js-details-form')){
             const selectedId = selectedForm.parents('#current-trip').attr('data-id');
-            console.log(selectedId);
             //just remove the form and show the original trip details
             getSelectedTrip(displayUpdatedTripDetails, selectedId);
         } else if (selectedForm.hasClass('add-item-form')){
@@ -897,7 +920,6 @@ function watchForCancels(){
 
 function watchTripPage(){
     $('#current-trip').on('click', 'button', (event) => {
-        event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parent('div').attr('data-id');
         if (selected.hasClass('edit-trip')){
@@ -905,7 +927,7 @@ function watchTripPage(){
         } else if (selected.hasClass('delete-trip')){
             //prompt user if they want to delete the trip
             const confirmDelete = confirm('Are you sure you want to delete this trip?');
-            if (confirmDelete === true){
+            if (confirmDelete){
                 $('#current-trip').empty();
                 deleteTripFromDatabase(getAndDisplayActiveTrips, selectedId);
             }
@@ -916,7 +938,7 @@ function watchTripPage(){
             //check to see if a form is active and prompt user of unsaved changes
             if($('#current-trip').find('form').length > 0 ) {
                 const confirmView = confirm('Are you sure you want to switch to view mode? Doing so will discard any unsaved changes to your trip.');
-                if (confirmView === true){
+                if (confirmView){
                     getAndDisplaySelectedTrip(selectedId);
                 }
             } else {
@@ -928,7 +950,6 @@ function watchTripPage(){
 
 function watchDashboard(){
     $('#active-trips').on('click', 'button', (event => {
-        event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parent('div').attr('data-id');
         if(selected.hasClass('view-trip')) {
@@ -939,7 +960,7 @@ function watchDashboard(){
         } else if (selected.hasClass('delete-trip')){
             //prompt user if they want to delete the trip
             const confirmDelete = confirm("Are you sure you want to delete this trip?");
-            if (confirmDelete === true){
+            if (confirmDelete){
                 $('#active-trips').empty();
                 deleteTripFromDatabase(getAndDisplayActiveTrips,selectedId);
             }
@@ -965,9 +986,9 @@ function watchLogin(){
     });
 
     $('#signup-redirect').click(event => {
-        event.preventDefault();
-        $('#js-username').val('');
-        $('#js-password').val('');
+        //reset the login form
+        $('#js-username').val('').removeClass('error-field');
+        $('#js-password').val('').removeClass('error-field');
         $('#login-page').prop('hidden', true);
         $('#signup-page').prop('hidden', false);
     });
@@ -980,6 +1001,11 @@ function watchLogin(){
         const confirmPassword = $('#js-confirm-password').val();
         
         if(newPassword !== confirmPassword){
+            //reset previous errors
+            $('#js-new-password').removeClass('error-field');
+            $('#js-confirm-password').removeClass('error-field');
+            $('.error-msg').remove();
+            //add current error
             $('#js-new-password').val('').addClass('error-field');
             $('#js-confirm-password').val('').addClass('error-field')
             .after('<p class="error-msg"><i class="fas fa-exclamation-circle"></i> Passwords do not match. Try again.</p>');
@@ -988,12 +1014,14 @@ function watchLogin(){
             $('#js-new-password').val('').removeClass('error-field');
             $('#js-confirm-password').val('').removeClass('error-field');
             $('.error-msg').remove();
-            createNewUser({username: newUsername, password: newPassword});
+            const signupInfo = {};
+            if (newUsername) signupInfo.username = newUsername;
+            if (newPassword) signupInfo.password = newPassword;
+            createNewUser(signupInfo);
         }
     });
 
-    $('#login-redirect').click(event => {
-        event.preventDefault();
+    $('#login-redirect').click(() => {
         //reset the signup form
         $('#js-new-username').val('');
         $('#js-new-password').val('').removeClass('error-field');
@@ -1007,7 +1035,6 @@ function watchLogin(){
 
 function watchLogout(){
     $('#logout-button').click(event => {
-        event.preventDefault();
 
         user.authToken = null;
         user.username = null;
