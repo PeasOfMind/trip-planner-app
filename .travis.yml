@@ -1,7 +1,7 @@
 language: node_js
 node_js: node
 services:
-  - mongodb
+- mongodb
 deploy:
   provider: heroku
   edge: true
@@ -10,3 +10,6 @@ deploy:
   app: obscure-brook-80680
   on:
     repo: PeasOfMind/trip-planner-app
+env:
+  global:
+    secure: DGf8VE4y3FlbYvt+hSJp50AMoDh49k7wyUSb28qbTSGWoUfCihycm16w5UPb8E/7ky25xZaXMpTB/nrG6jarRQ25eDGv5jcrdr+xCpYJEgOmZMMSXzalpZxv+5sCabb9YTgsHAv3fbRRRINXG1tjRMA4sK1xKtceW8WzHv2YAHz9KsDq9FSK+RBoiSpYO7FoCiKmLxHc1tmqH7LTdTWlGKQ2qp73VAvuaqdQ0fxDMuxnHGUwthBSTr43PmuAORbBj58w0EqsAz1lT5NAKWT+cvqs9sL5QVc640bMZ9EPByfOYlJFo75iKQKI8HYoK4VE+0j+2fHGjYkjKUlc3E6i5Q4SXZjxmcJOjVP0PD0ctS6E/HIiWreUjPgmEUYzlqw4Z1RiHm0SiM5Wb2vn+BqFru0YH3Zg8Q9roVCESAlGm2YSm+JuIdHgt2ZhxgYEmNhNX9xWv/54SDh/ZPVPxzUHehgNpYEQwWlBorx9TPj7xBzfxnmllmtVSw51VVTH6xW/YGXvw6Ch3M5aAiS2L5aJdT9Lqcq9IOrI0iXG7t6hehIrdjGzBwWNSJCPJWPMQ1Wo4DhQndPXJRuOy83Kk1s264/4JHchOYMO4VuX7EWkfxzG7R7Ybeye05h0KQbD03bVUZn9ggCXOVGf8BKrU4NpHXpXOZ0vmp6KfitGWdUnyjo=
