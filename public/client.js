@@ -322,6 +322,7 @@ function createNewUser(newInfo){
         if (responseJson.code < 300 && responseJson.code >= 200) {
             loginAndDisplayDash(newInfo, true);
         } else {
+            console.log('the responseJson code is:', responseJson.code);
             displaySignupError(responseJson.location, responseJson.message);
         }
     });
