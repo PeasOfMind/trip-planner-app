@@ -320,6 +320,7 @@ function createNewUser(newInfo){
     .then(responseJson => {
         //check if response was okay (200-299)
         if (responseJson.code < 300 && responseJson.code >= 200) {
+            console.log('response is going to login and display dash')
             loginAndDisplayDash(newInfo, true);
         } else {
             console.log('the responseJson code is:', responseJson.code);

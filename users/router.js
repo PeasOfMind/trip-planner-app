@@ -84,6 +84,7 @@ router.post('/', (req, res) => {
     })
     .then(hash => User.create({username, password: hash}))
     .then(user => {
+        console.log('user successfully created');
         return res.status(201).json(user.serialize());
     })
     .catch(err => {
