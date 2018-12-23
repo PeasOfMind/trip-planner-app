@@ -6,12 +6,10 @@ const router = express.Router();
 
 
 router.post('/', (req, res) => {
-    console.log('user req.body', req.body);
     const requiredFields = ['username', 'password'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
     if (missingField){
-        console.log('the missing field is:', missingField);
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
@@ -84,15 +82,12 @@ router.post('/', (req, res) => {
     })
     .then(hash => User.create({username, password: hash}))
     .then(user => {
-        console.log('user successfully created');
         return res.status(201).json(user.serialize());
     })
     .catch(err => {
         if (err.reason === 'ValidationError'){
-            console.log(res.status(err.code).json(err));
             return res.status(err.code).json(err);
         }
-        console.log('not validation error, 500 error')
         res.status(500).json({code: 500, message: 'Internal server error'});
     });
 });
