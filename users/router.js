@@ -70,7 +70,6 @@ router.post('/', (req, res) => {
 
     return User.find({username}, null)
     .then(entry => {
-        console.log('The found entry is', entry);
         if (entry.length > 0){
             //There is an existing user in database
             return Promise.reject({
@@ -89,8 +88,10 @@ router.post('/', (req, res) => {
     })
     .catch(err => {
         if (err.reason === 'ValidationError'){
+            console.log(res.status(err.code).json(err));
             return res.status(err.code).json(err);
         }
+        console.log('not validation error, 500 error')
         res.status(500).json({code: 500, message: 'Internal server error'});
     });
 });

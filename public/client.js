@@ -525,6 +525,7 @@ function getAndDisplayPlaceForm(selectedId, placeId){
         <input type="text" name="place-type" class="js-place-type">
         </div>
         <input type="submit" class="js-submit-place" value="Save Edits">
+        <button class="js-remove-form">Cancel</button>
     </form>`);
     getSelectedPlace(prefillPlaceForm, selectedId, placeId);
 }
@@ -705,6 +706,8 @@ function displaySignupError(errLocation, errMessage){
 }
 
 function displayLoginError(){
+    //reset error messages
+    $('.error-msg').remove();
     $('#js-password')
     .after('<p class="error-msg"><i class="fas fa-exclamation-circle"></i> Incorrect username and/or password</p>')
     .addClass('error-field');
@@ -895,6 +898,7 @@ function watchForEdits(){
 
 function watchForCancels(){
     $('#active-trips').on('click', '.js-remove-form', (event) => {
+        event.preventDefault();
         const selectedForm = $(event.currentTarget).parents('form');
         if(selectedForm.hasClass('js-details-form')){
             $('.js-details-form').remove();
@@ -903,18 +907,23 @@ function watchForCancels(){
     });
 
     $('#current-trip').on('click', '.js-remove-form', (event) => {
+        event.preventDefault();
         const selectedForm = $(event.currentTarget).parents('form');
+        const selectedId = selectedForm.parents('#current-trip').attr('data-id');
         if(selectedForm.hasClass('js-details-form')){
-            const selectedId = selectedForm.parents('#current-trip').attr('data-id');
             //just remove the form and show the original trip details
             getSelectedTrip(displayUpdatedTripDetails, selectedId);
         } else if (selectedForm.hasClass('add-item-form')){
-            $('.add-item-form').remove();
+            // $('.add-item-form').remove();
             $('#packing-list').prepend('<button class="js-add item add-item"><i class="fas fa-plus-circle"></i></button>');
         } else if (selectedForm.hasClass('add-place-form')){
-            $('.add-place-form').remove();
+            // $('.add-place-form').remove();
             $('#saved-places').prepend('<button class="js-add place add-place"><i class="fas fa-plus-circle"></i></button>');
+        } else if (selectedForm.hasClass('place-form')){
+            const placeId = selectedForm.parent('div').attr('data-place-id');
+            getSelectedPlace(displayUpdatedPlace, selectedId, placeId);
         }
+        selectedForm.remove();
     });
 }
 
@@ -942,6 +951,7 @@ function watchTripPage(){
                     getAndDisplaySelectedTrip(selectedId);
                 }
             } else {
+                //otherwise, just go through with displaying selected trip
                 getAndDisplaySelectedTrip(selectedId);
             }
         }
@@ -1023,7 +1033,7 @@ function watchLogin(){
 
     $('#login-redirect').click(() => {
         //reset the signup form
-        $('#js-new-username').val('');
+        $('#js-new-username').val('').removeClass('error-field');
         $('#js-new-password').val('').removeClass('error-field');
         $('#js-confirm-password').val('').removeClass('error-field');
         $('.error-msg').remove();
