@@ -15,7 +15,7 @@ router.get('/', (req,res) => {
     })
     .catch(err => {
         console.error(err);
-        res.status(500).json({error: 'something went wrong'})
+        res.status(500).json({error: 'Could not retrieve trips'})
     });
 });
 
@@ -30,7 +30,7 @@ router.get('/:id', (req, res) => {
     .then(trip => res.json(trip.serialize()))
     .catch(err => {
         console.error(err);
-        res.status(500).json({error: 'could not find requested trip'})
+        res.status(500).json({error: 'Could not find requested trip'})
     });
 });
 
@@ -43,7 +43,7 @@ router.get('/:id/places/:placeId', (req, res) => {
     .then(currentPlace => res.json(currentPlace.serialize()))
     .catch(err => {
         console.error(err);
-        res.status(500).json({error: 'could not retrieve requested place'})
+        res.status(500).json({error: 'Could not find requested place'})
     })
 })
 
@@ -56,7 +56,7 @@ router.get('/:id/packingList/:listId', (req, res) => {
     .then(currentItem => res.json(currentItem.serialize()))
     .catch(err => {
         console.error(err);
-        res.status(500).json({error: 'could not retrieve requested place'})
+        res.status(500).json({error: 'Could not find requested place'})
     })
 })
 
@@ -142,12 +142,12 @@ router.put('/:id/places/:placeId', (req, res) => {
             const editedPlace = trip.savedPlaces.id(req.params.placeId);
             editedPlace.name = req.body.name;
             editedPlace.address = req.body.address;
-            editedPlace.type = req.body.type;
+            editedPlace.notes = req.body.notes;
             // editedPlace.save();
             trip.save();
             return trip.savedPlaces.id(req.body.id);
         }
-        return res.status(404).json({message: 'could not find trip id or place id'});
+        return res.status(404).json({message: 'Could not find trip id or place id'});
     })
     .then(updatedPlace => res.status(204).end())
     .catch(err => {
@@ -184,9 +184,9 @@ router.put('/:id/packingList/:listId', (req, res) => {
             trip.save();
             return trip.packingList.id(req.body.id);
         }
-        return res.status(404).json({message: 'could not find trip id or place id'});
+        return res.status(404).json({message: 'Could not find trip id or item id'});
     })
-    .then(updatedList => res.status(204).end())
+    .then(() => res.status(204).end())
     .catch(err => {
         console.err(err);
         res.status(500).json({message: 'Trip details could not be updated'});
@@ -215,18 +215,18 @@ router.delete('/:id/places/:placeId', (req,res) => {
     .catch(err => res.status(500).json({message: 'Could not delete the saved place'}));
 });
 
-router.delete('/:id/packingList', (req, res) => {
-    Trip.findById(req.params.id)
-    .then((trip) => {
-        trip.packingList = [];
-        trip.save();
-    })
-    .then(() => {
-        console.log(`Deleted packing list in trip '${req.params.id}'`);
-        res.status(204).end();
-    })
-    .catch(err => res.status(500).json({message: 'Could not delete the packing list'}));
-})
+// router.delete('/:id/packingList', (req, res) => {
+//     Trip.findById(req.params.id)
+//     .then((trip) => {
+//         trip.packingList = [];
+//         trip.save();
+//     })
+//     .then(() => {
+//         console.log(`Deleted packing list in trip '${req.params.id}'`);
+//         res.status(204).end();
+//     })
+//     .catch(err => res.status(500).json({message: 'Could not delete the packing list'}));
+// })
 
 router.delete('/:id/packingList/:listId', (req,res) => {
     Trip.findById(req.params.id)

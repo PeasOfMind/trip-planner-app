@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const placeSchema = mongoose.Schema({
     name: {type: String, required: true},
     address: String,
-    type: {type: String}
+    notes: {type: String}
 });
 
 const packingSchema = mongoose.Schema({
@@ -32,7 +32,7 @@ placeSchema.methods.serialize = function(){
         id: this._id,
         name: this.name,
         address: this.address,
-        type: this.type
+        notes: this.notes
     }
 }
 

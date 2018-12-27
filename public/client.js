@@ -4,140 +4,81 @@ const user = {
     username: null,
     authToken: null
 };
-// const MOCK_TRIP_DATA = {
-//     trips: [ 
-//         {
-//             "id": '1111111',
-//             "name": 'Christmas Vacation', 
-//             "destination": {
-//                 "location": 'Paris',
-//                 "country": 'France'
-//             },
-//             "savedPlaces": [
-//                 {
-//                     "name": 'Baguette',
-//                     "address": '123 Main Street, Fancy France Street, 75000',
-//                     "type": 'Restaurant'
-//                 },
-//                 {
-//                     "name": 'Eiffel Tower',
-//                     "address": 'Champ de Mars, 5 Avenue Anatole France, 75007',
-//                     "type":  'Landmark'
-//                 },
-//                 {
-//                     "name": 'Le 10 Bis Hotel',
-//                     "address": '10 B rue de Debarcadere, 75017',
-//                     "type": 'Accomodation'
-//                 }
-//             ],
-//             "packingList": [
-//                 {
-//                     "item": 'sunscreen',
-//                     "packed": false
-//                 },
-//                 {
-//                     "item": 'passport',
-//                     "packed": true
-//                 },
-//                 {
-//                     "item": 'foreign currency',
-//                     "packed": false
-//                 }
-//             ],
-//             "dates": {
-//                 "start": new Date(2018, 12, 23),
-//                 "end": new Date(2019, 1, 6)
-//             }
-//         },
-//         {
-//             "id": '222222',
-//             "name": 'Summer Family Trip', 
-//             "destination": {
-//                 "location": 'Bangkok',
-//                 "country": 'Thailand'
-//             },
-//             "savedPlaces": [
-//                 {
-//                     "name": 'Temple of the Reclining Buddha',
-//                     "address": '2 Sanamchai Road, Grand Palace, Pranakorn, 10200',
-//                     "type": 'Restaurant'
-//                 }
-//             ],
-//             "packingList": [
-//                 {
-//                     "item": 'sunscreen',
-//                     "packed": false
-//                 },
-//                 {
-//                     "item": 'passport',
-//                     "packed": true
-//                 },
-//                 {
-//                     "item": 'foreign currency',
-//                     "packed": false
-//                 }
-//             ],
-//             "dates": {
-//                 "start": new Date(2019, 3, 15),
-//                 "end": new Date(2019, 3, 22)
-//             }
-//         } 
-//     ]
-// }
 
 function getActiveTrips(callback){
+    let ok;
     fetch('/api/trips', {
         headers: {
             'Authorization': `Bearer ${user.authToken}`
         }
     })
     .then(response => {
-        if (response.ok) return response.json();
-        throw new Error (response.statusText);
+        ok = response.ok;
+        return response.json();
     })
-    .then(callback);
+    .then(responseJson => {
+        if (ok) return callback(responseJson);
+        return Promise.reject(responseJson);
+    })
+    .catch(err => displayDashboardError(err.message));
 }
 
 function getSelectedTrip(callback, id, shouldEdit){
+    let ok;
     fetch(`/api/trips/${id}`, {
         headers: {
             'Authorization': `Bearer ${user.authToken}`
         }
     })
     .then(response => {
-        if (response.ok) return response.json();
-        throw new Error (response.statusText);
+        ok = response.ok;
+        return response.json();
     })
-    .then(responseJson => callback(responseJson, shouldEdit));
+    .then(responseJson => {
+        if (ok) return callback(responseJson, shouldEdit);
+        return Promise.reject(responseJson);
+    })
+    .catch(err => displayTripError(err.message, id));
 }
 
 function getSelectedPlace(callback, id, placeId){
+    let ok;
     fetch(`/api/trips/${id}/places/${placeId}`,{
         headers: {
             'Authorization': `Bearer ${user.authToken}`
         }
     })
     .then(response => {
-        if (response.ok) return response.json();
-        throw new Error (response.statusText);
+        ok = response.ok;
+        return response.json();
     })
-    .then(responseJson => callback(responseJson))
+    .then(responseJson => {
+        if (ok) return callback(responseJson);
+        return Promise.reject(responseJson);
+    })
+    .catch(err => displayPlaceError(err.message));
 }
 
 function getSelectedItem(callback, id, itemId){
+    let ok;
     fetch(`/api/trips/${id}/packingList/${itemId}`, {
         headers: {
             'Authorization': `Bearer ${user.authToken}`
         }
     })
     .then(response => {
-        if (response.ok) return response.json();
-        throw new Error (response.statusText);
+        ok = response.ok;
+        return response.json();
     })
-    .then(responseJson => callback(responseJson))
+    .then(responseJson => {
+        if (ok) return callback(responseJson);
+        return Promise.reject(responseJson);
+    })
+    .catch(err => displayItemError(err.message));
 }
 
 function addNewTrip(callback, updateData){
+    let ok;
     fetch('/api/trips', {
         method: "POST",
         mode: "cors",
@@ -148,13 +89,18 @@ function addNewTrip(callback, updateData){
         body: JSON.stringify(updateData)
     })
     .then(response => {
-        if (response.ok) return response.json();
-        throw new Error (response.statusText);
+        ok = response.ok;
+        return response.json();
     })
-    .then(responseJson => callback(responseJson));
+    .then(responseJson => {
+        if (ok) return callback(responseJson);
+        return Promise.reject(responseJson);
+    })
+    .catch(err => displayTripError(err.message));
 }
 
 function addNewPlace(callback, id, updateData){
+    let ok;
     fetch(`/api/trips/${id}/places`, {
         method: "POST",
         mode: "cors",
@@ -165,13 +111,19 @@ function addNewPlace(callback, id, updateData){
         body: JSON.stringify(updateData)
     })
     .then(response => {
-        if (response.ok) return response.json();
-        throw new Error (response.statusText);
+        ok = response.ok;
+        return response.json();
     })
-    .then(responseJson => callback(responseJson));
+    .then(responseJson => {
+        if (ok) return responseJson;
+        return Promise.reject(responseJson);
+    })
+    .then(responseJson => callback(responseJson))
+    .catch(err => displayPlaceError(err.message));
 }
 
 function addNewItem(callback, id, updateData){
+    let ok;
     fetch(`/api/trips/${id}/packingList`, {
         method: "POST",
         mode: "cors",
@@ -182,10 +134,15 @@ function addNewItem(callback, id, updateData){
         body: JSON.stringify(updateData),
     })
     .then(response => {
-        if (response.ok) return response.json();
-        throw new Error (response.statusText);
+        ok = response.ok;
+        return response.json();
     })
-    .then(responseJson => callback(responseJson));
+    .then(responseJson => {
+        if (ok) return responseJson;
+        return Promise.reject(responseJson);
+    })
+    .then(responseJson => callback(responseJson))
+    .catch(err => displayItemError(err.message));
 }
 
 function editTrip(callback, updateData){
@@ -198,7 +155,13 @@ function editTrip(callback, updateData){
         },
         body: JSON.stringify(updateData)
     })
-    .then(() => getSelectedTrip(callback,updateData.id));
+    .then(response => {
+        if (response.ok) return getSelectedTrip(callback,updateData.id);
+        return Promise.reject(response.json());
+    })
+    .catch(err => {
+        displayTripError(err.message);
+    })
 }
 
 function editPlace(callback, id, placeId, updateData){
@@ -211,7 +174,13 @@ function editPlace(callback, id, placeId, updateData){
         },
         body: JSON.stringify(updateData)
     })
-    .then(() => getSelectedPlace(callback, id, placeId));
+    .then(response => {
+        if (response.ok) return getSelectedPlace(callback, id, placeId);
+        return Promise.reject(response.json());;
+    })
+    .catch(err => {
+        displayPlaceError(err.message);
+    });
 }
 
 function editItem(callback, id, updateData){
@@ -224,11 +193,18 @@ function editItem(callback, id, updateData){
         },
         body: JSON.stringify(updateData)
     })
-    .then(() => getSelectedItem(callback, id, updateData.id));
+    .then(response => {
+        if (response.ok) return getSelectedItem(callback, id, updateData.id);
+        return Promise.reject(response.json());
+    })
+    .catch(err => {
+        displayItemError(err.message);
+    })
 }
 
 
 function deleteTripFromDatabase(callback, id){
+    let ok;
     fetch(`/api/trips/${id}`, {
         method: "DELETE",
         headers: {
@@ -236,9 +212,12 @@ function deleteTripFromDatabase(callback, id){
         }
     })
     .then(response => {
-        if (!response.ok) throw new Error (response.statusText);
+        if (response.ok) return callback();
+        return Promise.reject(response.json());
     })
-    .then(callback);
+    .catch(err => {
+        displayTripError(err.message);
+    });
 }
 
 function deletePlaceFromTrip(callback, id, placeId){
@@ -249,23 +228,26 @@ function deletePlaceFromTrip(callback, id, placeId){
         }
     })
     .then(response => {
-        if (!response.ok) throw new Error (response.statusText);
+        if (response.ok) return callback(id, true);
+        return Promise.reject(response.json());
     })
-    .then(() => callback(id, true));
+    .catch(err => {
+        displayPlaceError(err.message);
+    })
 }
 
-function deletePackingListFromTrip(callback, id){
-    fetch(`/api/trips/${id}/packingList`, {
-        method: "DELETE",
-        headers: {
-            'Authorization': `Bearer ${user.authToken}`
-        }
-    })
-    .then(response => {
-        if (!response.ok) throw new Error (response.statusText);
-    })
-    .then(() => callback(id, true))
-}
+// function deletePackingListFromTrip(callback, id){
+//     fetch(`/api/trips/${id}/packingList`, {
+//         method: "DELETE",
+//         headers: {
+//             'Authorization': `Bearer ${user.authToken}`
+//         }
+//     })
+//     .then(response => {
+//         if (!response.ok) throw new Error (response.statusText);
+//     })
+//     .then(() => callback(id, true))
+// }
 
 function deletePackingItemFromTrip(callback,id, itemId){
     fetch(`/api/trips/${id}/packingList/${itemId}`, {
@@ -275,9 +257,38 @@ function deletePackingItemFromTrip(callback,id, itemId){
         }
     })
     .then(response => {
-        if (!response.ok) throw new Error (response.statusText);
+        if (response.ok) return callback(id, true);
+        return Promise.reject(response.json());
     })
-    .then(() => callback(id, true));
+    .catch(err => {
+        displayItemError(err.message);
+    });
+}
+
+function createNewUser(newInfo){
+    let ok;
+    fetch('/api/users', {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify(newInfo)
+    })
+    .then(response => {
+        ok = response.ok;
+        return response.json();
+    })
+    .then(responseJson => {
+        if (ok) return responseJson;
+        return Promise.reject(responseJson);
+    })
+    .then(() => {
+        loginAndDisplayDash(newInfo, true);
+    })
+    .catch(err => {
+        displaySignupError(err.location, err.message);
+    });
 }
 
 function loginAndDisplayDash(loginInfo, isNewUser){
@@ -291,7 +302,7 @@ function loginAndDisplayDash(loginInfo, isNewUser){
     })
     .then(response => {
         if (response.ok) return response.json();
-        throw new Error (response.statusText);
+        throw new Error;
     })
     .then(responseJson => {
         user.authToken = responseJson.authToken;
@@ -301,36 +312,6 @@ function loginAndDisplayDash(loginInfo, isNewUser){
     .catch(() => {
         displayLoginError();
     });
-}
-
-function createNewUser(newInfo){
-    fetch('/api/users/', {
-        method: "POST",
-        mode: "cors",
-        headers: {
-            "Content-Type": "application/json; charset=utf-8"
-        },
-        body: JSON.stringify(newInfo)
-    })
-    .then(response => {
-        return response.json();
-        // if (response.ok) return response.json();
-        // throw new Error (response.statusText);
-    })
-    .then(responseJson => {
-        //check if response was okay (200-299)
-        if (responseJson.username) {
-            loginAndDisplayDash(newInfo, true);
-        } else {
-            displaySignupError(responseJson.location, responseJson.message);
-        }
-    });
-    // .then(() => {
-    //     loginAndDisplayDash(newInfo, true);
-    // })
-    // .catch(err => {
-    //     console.log(err);
-    // });
 }
 
 function displayNewTrip(currentTrip){
@@ -353,11 +334,11 @@ function updateAndDisplayItemDetails(inputData, id){
     updateData.id = inputData.attr('data-list-id');
     if (updateData.id) {
         //toggles between true and false
-        const previousState = inputData.attr('data-checked');
         updateData.packed = !(inputData.attr('data-checked') === 'true');
         editItem(displayUpdatedItem, id, updateData);
     } else {
         updateData.item = inputData.find('.js-item').val();
+        inputData.find('.js-item').val('');
         updateData.packed = false;
         addNewItem(displayNewItem, id, updateData);
     }
@@ -373,7 +354,8 @@ function displayUpdatedItem(currentItem){
 }
 
 function displayNewItem(newItem){
-    $('.add-item-form').remove();
+    $('.add-item-form').find('.item-update').remove();
+    $('.add-item-form').append(`<p class="item-update">${newItem.item} added!</p>`);
     //if the no items header exists, replace with regular header and add list 
     if($('.js-no-items').length > 0) {
         $('#packing-list').empty().append('<h4 class="packing-header">Packing List</h4><ul id="item-list"></ul>')
@@ -413,10 +395,8 @@ function addItemForm(){
     </form>`);
 }
 
-//display a new place to input
-function addPlaceForm(){
-    $('#saved-places').children('.js-add').remove();
-    $('.places-header').after(`<form class="add-place-form js-place-form">
+function generatePlaceForm(isNewPlace){
+    return `<form class="${isNewPlace ? 'add-place-form' : 'edit-place-form'} js-place-form">
     <div class="place-form-entry">
     <label for="place-name">Name</label>
     <input type="text" name="place-name" class="js-place-name">
@@ -426,12 +406,19 @@ function addPlaceForm(){
     <input type="text" name="address" class="js-address">
     </div>
     <div class="place-form-entry">
-    <label for="place-type">Type</label>
-    <input type="text" name="place-type" class="js-place-type">
+    <label for="place-notes">Notes</label>
+    <textarea name="place-notes" class="js-place-notes" rows="2" cols="100">
+    </textarea>
     </div>
-    <input type="submit" class="js-submit-place" value="Add Place">
+    <input type="submit" class="js-submit-place" value="${isNewPlace ? 'Add Place': 'Submit Edits'}">
     <button class="js-remove-form">Cancel</button>
-    </form>`);
+    </form>`
+}
+
+//display a new place to input
+function addPlaceForm(){
+    $('#saved-places').children('.js-add').remove();
+    $('.places-header').after(generatePlaceForm(true));
 }
 
 //update place details in database
@@ -439,9 +426,9 @@ function updateAndDisplayPlaceDetails(inputData, id, placeId){
     const updateData = {};
     updateData.name = inputData.find('.js-place-name').val();
     updateData.address = inputData.find('.js-address').val();
-    //if user didn't provide place type, assign it as "Unspecified"
-    if (inputData.find('.js-place-type').val() === '') updateData.type = "Unspecified";
-    else updateData.type = inputData.find('.js-place-type').val();
+    //if user didn't provide notes, write "No Notes"
+    if (inputData.find('.js-place-notes').val() === '') updateData.notes = "No Notes";
+    else updateData.notes = inputData.find('.js-place-notes').val();
 
     //if a placeId exists, edit place instead of adding new place
     if (placeId) {
@@ -451,6 +438,7 @@ function updateAndDisplayPlaceDetails(inputData, id, placeId){
 }
 
 function displayUpdatedPlace(currentPlace){
+    console.log('current place is:', currentPlace);
     $(`div[data-place-id='${currentPlace.id}']`).empty()
     .append('<button class="js-edit place edit-place"><i class="far fa-edit"></i></button>' + 
     '<button class="js-delete place delete-place"><i class="far fa-trash-alt"></i></button>')
@@ -468,7 +456,7 @@ function displayNewPlace(newPlace){
         <button class="js-edit place edit-place"><i class="far fa-edit"></i></button>
         <button class="js-delete place delete-place"><i class="far fa-trash-alt"></i></button>
         ${displayOnePlace(newPlace)} </div>`)
-    .append('<button class="js-add place add-place"><i class="fas fa-plus-circle"></i></button>');
+    .prepend('<button class="js-add place add-place"><i class="fas fa-plus-circle"></i></button>');
 }
 
 //update trip details in database
@@ -486,7 +474,7 @@ function prefillPlaceForm(currentPlace){
     const currentForm = $(`div[data-place-id='${currentPlace.id}']`);
     currentForm.find('.js-place-name').val(currentPlace.name);
     currentForm.find('.js-address').val(currentPlace.address);
-    currentForm.find('.js-place-type').val(currentPlace.type);
+    currentForm.find('.js-place-notes').val(currentPlace.notes);
 }
 
 function prefillDetailsForm(currentTrip){
@@ -510,23 +498,7 @@ function prefillDetailsForm(currentTrip){
 
 //Turn the saved place into an editable form
 function getAndDisplayPlaceForm(selectedId, placeId){
-    $(`div[data-place-id='${placeId}']`).empty().append(`
-    <form class="place-form js-place-form">
-        <div class="place-form-entry">
-        <label for="place-name">Name</label>
-        <input type="text" name="place-name" class="js-place-name">
-        </div>
-        <div class="place-form-entry">
-        <label for="address">Address</label>
-        <input type="text" name="address" class="js-address">
-        </div>
-        <div class="place-form-entry">
-        <label for="place-type">Type</label>
-        <input type="text" name="place-type" class="js-place-type">
-        </div>
-        <input type="submit" class="js-submit-place" value="Save Edits">
-        <button class="js-remove-form">Cancel</button>
-    </form>`);
+    $(`div[data-place-id='${placeId}']`).empty().append(generatePlaceForm());
     getSelectedPlace(prefillPlaceForm, selectedId, placeId);
 }
 
@@ -590,7 +562,7 @@ function displayPackingList(currentTrip, shouldEdit){
 function displayOnePlace(place){
     return `<h5 class="place-name">${place.name}</h5>
     <p class="place-address">${place.address}</p>
-    <p class="place-type">Type: ${place.type}</p>`
+    <p class="place-notes">Notes: ${place.notes}</p>`
 }
 
 function displaySavedPlaces(currentTrip, shouldEdit){
@@ -626,8 +598,8 @@ function displaySelectedTrip(currentTrip, shouldEdit){
     ${displayTripDetails(currentTrip)}
     </div>
     <div id="saved-places">
-    ${displaySavedPlaces(currentTrip, shouldEdit)}
     ${shouldEdit ? '<button class="js-add place add-place"><i class="fas fa-plus-circle"></i></button>': ''}
+    ${displaySavedPlaces(currentTrip, shouldEdit)}
     </div>
     <div id="packing-list">
     ${shouldEdit ? '<button class="js-add item add-item"><i class="fas fa-plus-circle"></i></button>': ''}
@@ -691,6 +663,34 @@ function getAndDisplayActiveTrips(isNewUser){
 // </form>`)
 // }
 
+function displayDashboardError(errMessage){
+    //reset previous errors
+    $('.error-msg').remove();
+    $('#active-trips').append(`<p class="error-msg">
+    <i class="fas fa-exclamation-circle"></i> ${errMessage}</p>`);
+}
+
+function displayTripError(errMessage, id){
+    //reset previous errors
+    $('.error-msg').remove();
+    $(`${id ? `div[data-id=${id}]` : '.js-details-form'}`).append(`<p class="error-msg">
+    <i class="fas fa-exclamation-circle"></i> ${errMessage}</p>`);
+}
+
+function displayPlaceError(errMessage){
+    //reset previous errors
+    $('.error-msg').remove();
+    $('#saved-places').append(`<p class="error-msg">
+    <i class="fas fa-exclamation-circle"></i> ${errMessage}</p>`);
+}
+
+function displayItemError(errMessage){
+    //reset previous errors
+    $('.error-msg').remove();
+    $('#item-list').after(`<p class="error-msg">
+    <i class="fas fa-exclamation-circle"></i> ${errMessage}</p>`);
+}
+
 function displaySignupError(errLocation, errMessage){
     //reset previous errors
     $('#js-new-password').removeClass('error-field');
@@ -702,7 +702,8 @@ function displaySignupError(errLocation, errMessage){
         $('#js-new-password').val('').addClass('error-field');
         $('#js-confirm-password').val('').addClass('error-field');
     }
-    $('#js-submit-signup').before(`<p class="error-msg"><i class="fas fa-exclamation-circle"></i> ${errLocation}: ${errMessage}</p>`)
+    $('#js-submit-signup').before(`<p class="error-msg">
+    <i class="fas fa-exclamation-circle"></i> ${errLocation}: ${errMessage}</p>`)
 }
 
 function displayLoginError(){
@@ -725,10 +726,6 @@ function validateDetailsForm(){
     const requiredFields = ['#js-trip-name', '#js-location','#js-start-date', '#js-end-date'];
     //find the first field where the input is empty. Return that field.
     return requiredFields.find(field => !( $(field).val() ));
-    // if( !($('#js-trip-name').val()) ) return '#js-trip-name';
-    // if( !($('#js-location').val()) ) return '#js-location';
-    // if( !($('#js-start-date').val()) ) return '#js-start-date';
-    // if( !($('#js-end-date').val()) ) return '#js-end-date';
 }
 
 function watchForSubmits(){
@@ -814,7 +811,7 @@ function watchForSubmits(){
             fieldToValidate.addClass('error-field');
             //remove any previous error message
             selected.find('.error-msg').remove();
-            selected.append('<p class="error-msg"><i class="fas fa-exclamation-circle"></i>Packing list entry must not be empty</p>')
+            selected.append('<p class="error-msg"><i class="fas fa-exclamation-circle"></i> Packing list entry must not be empty</p>')
         } else {
             updateAndDisplayItemDetails(selected, selectedId);
         }
@@ -847,23 +844,12 @@ function watchForDeletes(){
                 const placeId = selected.parent('div').attr('data-place-id');
                 deletePlaceFromTrip(getAndDisplaySelectedTrip, selectedId, placeId);
             }
-        // } else if (selected.hasClass('list')){
-        //     //delete the packing list and refresh page
-        //     deletePackingListFromTrip(getAndDisplaySelectedTrip, selectedId);
         } else if (selected.hasClass('item')){
             //delete an item on the packing list and refresh page
             const itemIndex = selected.prev('li').attr('data-list-id');
             deletePackingItemFromTrip(getAndDisplaySelectedTrip, selectedId, itemIndex);
         }
     });
-
-    // $('#current-trip').on('click', 'span', (event) => {
-    //     //delete an item on the packing list and refresh page
-    //     const selected = $(event.currentTarget);
-    //     const selectedId = selected.parents('#current-trip').attr('data-id');
-    //     const itemIndex = selected.parent('li').attr('data-list-id');
-    //     deletePackingItemFromTrip(getAndDisplaySelectedTrip, selectedId, itemIndex);
-    // })
 }
 
 function watchForEdits(){
@@ -914,13 +900,12 @@ function watchForCancels(){
             //just remove the form and show the original trip details
             getSelectedTrip(displayUpdatedTripDetails, selectedId);
         } else if (selectedForm.hasClass('add-item-form')){
-            // $('.add-item-form').remove();
             $('#packing-list').prepend('<button class="js-add item add-item"><i class="fas fa-plus-circle"></i></button>');
         } else if (selectedForm.hasClass('add-place-form')){
-            // $('.add-place-form').remove();
             $('#saved-places').prepend('<button class="js-add place add-place"><i class="fas fa-plus-circle"></i></button>');
-        } else if (selectedForm.hasClass('place-form')){
+        } else if (selectedForm.hasClass('edit-place-form')){
             const placeId = selectedForm.parent('div').attr('data-place-id');
+            console.log('getting original place data to show up')
             getSelectedPlace(displayUpdatedPlace, selectedId, placeId);
         }
         selectedForm.remove();
@@ -941,8 +926,18 @@ function watchTripPage(){
                 deleteTripFromDatabase(getAndDisplayActiveTrips, selectedId);
             }
         } else if (selected.hasClass('dashboard-redirect')){
-            $('#current-trip').empty().removeAttr('data-id');
-            getAndDisplayActiveTrips(); 
+            //check to see if a form is active and prompt user of unsaved changes
+            if($('#current-trip').find('form').length > 0 ) {
+                const confirmRedirect = confirm('Are you sure you want to return to dashboard? Doing so will discard any unsaved changes to your trip.');
+                if (confirmRedirect){
+                    $('#current-trip').empty().removeAttr('data-id');
+                    getAndDisplayActiveTrips(); 
+                }
+            } else {
+                //otherwise, just go through with displaying active trips
+                $('#current-trip').empty().removeAttr('data-id');
+                getAndDisplayActiveTrips(); 
+            }
         } else if (selected.hasClass('view-trip')){
             //check to see if a form is active and prompt user of unsaved changes
             if($('#current-trip').find('form').length > 0 ) {

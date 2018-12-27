@@ -29,7 +29,7 @@ function generatePlaceData(num){
         places.push({
             name: faker.random.words(),
             address: `${faker.address.streetAddress()} ${faker.address.streetName()}, ${faker.address.zipCode()}`,
-            type: faker.random.word()
+            notes: faker.random.words()
         });
     }
     return places;
@@ -53,10 +53,7 @@ function generateTripData(){
     const listNum = Math.floor(Math.random() * 10) + 1;
     return {
         name: faker.random.words(),
-        destination: {
-            location: faker.address.city(),
-            country: faker.address.country()
-        },
+        destination: `${faker.address.city()}, ${faker.address.country()}`,
         savedPlaces: generatePlaceData(placeNum),
         packingList: generatePackingListData(listNum),
         dates: {
@@ -72,14 +69,35 @@ function tearDownDb(){
 }
 
 
-
 describe('Trip API resource', function(){
+    const username = 'testUser';
+    const password = 'testPass123';
+    let authHeader;
 
     before(function(){
         return runServer(TEST_DATABASE_URL);
     });
 
     beforeEach(function (){
+        //create a user and save the authToken
+        chai.request(app)
+        .post('/api/users')
+        .send({username, password})
+        .then(response => {
+            return response.json()
+            .then(() => chai.request(app)
+                .post('api/auth/login')
+                .send({username, password}) 
+                .then(response => {
+                return response.json()
+            })
+            .then(responseJson => {
+                const authToken = responseJson.authToken;
+                authHeader = {headers: 
+                    {'Authorization': `Bearer ${authToken}`}
+                }
+            }));
+        });
         return seedTripData();
     });
 
@@ -92,7 +110,7 @@ describe('Trip API resource', function(){
     });
 
     describe('Index Page', function(){
-        it('should return index page for the root url', function(){
+        it.only('should return index page for the root url', function(){
             return chai.request(app)
             .get('/')
             .then(function(res) {
@@ -104,10 +122,10 @@ describe('Trip API resource', function(){
 
     describe('GET endpoint', function(){
         it('should return all existing trips', function(){
-
             let res;
             return chai.request(app)
             .get('/api/trips')
+            .send(authHeader)
             .then(function(_res){
                 res = _res;
                 expect(res).to.have.status(200);
@@ -139,8 +157,7 @@ describe('Trip API resource', function(){
 
                 expect(resTrip.id).to.equal(trip.id);
                 expect(resTrip.name).to.equal(trip.name);
-                expect(resTrip.destination.location).to.equal(trip.destination.location);
-                expect(resTrip.destination.country).to.equal(trip.destination.country);
+                expect(resTrip.destination).to.equal(trip.destination);
                 expect(resTrip.savedPlaces).to.have.lengthOf(trip.savedPlaces.length);
                 expect(resTrip.packingList).to.have.lengthOf(trip.packingList.length);
                 expect(new Date(resTrip.dates.start).toDateString()).to.equal(trip.dates.start.toDateString());
@@ -166,8 +183,7 @@ describe('Trip API resource', function(){
                 expect(res).to.be.an('object');
                 expect(res.body.id).to.equal(resTrip.id);
                 expect(res.body.name).to.equal(resTrip.name)
-                expect(res.body.destination.location).to.equal(resTrip.destination.location);
-                expect(res.body.destination.country).to.equal(resTrip.destination.country);      
+                expect(res.body.destination).to.equal(resTrip.destination);   
                 expect(res.body.savedPlaces).to.have.lengthOf(resTrip.savedPlaces.length);
                 expect(res.body.packingList).to.have.lengthOf(resTrip.packingList.length);
                 expect(new Date(res.body.dates.start).toDateString()).to.equal(resTrip.dates.start.toDateString());
@@ -193,7 +209,7 @@ describe('Trip API resource', function(){
                 expect(res).to.be.an('object');
                 expect(res.body.name).to.equal(currentPlace.name);
                 expect(res.body.address).to.equal(currentPlace.address);
-                expect(res.body.type).to.equal(currentPlace.type);
+                expect(res.body.notes).to.equal(currentPlace.notes);
             });
         });
     });
@@ -233,8 +249,7 @@ describe('Trip API resource', function(){
                 expect(res.body).to.include.keys('id', 'name', 'destination', 'savedPlaces', 'packingList', 'dates');
                 expect(res.body.id).to.be.a('string');
                 expect(res.body.name).to.equal(newTrip.name);
-                expect(res.body.destination.location).to.equal(newTrip.destination.location);
-                expect(res.body.destination.country).to.equal(newTrip.destination.country);
+                expect(res.body.destination).to.equal(newTrip.destination);
                 expect(res.body.savedPlaces).to.have.lengthOf(newTrip.savedPlaces.length);
                 expect(res.body.packingList).to.have.lengthOf(newTrip.packingList.length);
                 expect(new Date(res.body.dates.start).toDateString()).to.equal(newTrip.dates.start.toDateString());
@@ -249,10 +264,7 @@ describe('Trip API resource', function(){
             //TODO: test dates here too.
             const updateData = {
                 "name": 'Summer Vacation',
-                "destination": {
-                    "location": 'Rome',
-                    "country": 'Italy'
-                },
+                "destination": 'Rome, Italy',
                 "dates": {
                     "start": 1544208420943,
                     "end": 1544208420955
@@ -274,8 +286,7 @@ describe('Trip API resource', function(){
             })
             .then(function(trip){
                 expect(trip.name).to.equal(updateData.name);
-                expect(trip.destination.location).to.equal(updateData.destination.location);
-                expect(trip.destination.country).to.equal(updateData.destination.country);
+                expect(trip.destination).to.equal(updateData.destination);
                 expect((trip.dates.start).toDateString()).to.equal(new Date(updateData.dates.start).toDateString());
                 expect((trip.dates.end).toDateString()).to.equal(new Date(updateData.dates.end).toDateString());
             });
@@ -303,7 +314,7 @@ describe('Trip API resource', function(){
                 expect(res).to.be.json;
                 expect(res.body.name).to.equal(newData.name);
                 expect(res.body.address).to.equal(newData.address);
-                expect(res.body.type).to.equal(newData.type);
+                expect(res.body.notes).to.equal(newData.notes);
             });
         });
     })
@@ -336,7 +347,7 @@ describe('Trip API resource', function(){
                 expect(trip.savedPlaces[0].id).to.equal(updateData.id);
                 expect(trip.savedPlaces[0].name).to.equal(updateData.name);
                 expect(trip.savedPlaces[0].address).to.equal(updateData.address);
-                expect(trip.savedPlaces[0].type).to.equal(updateData.type);
+                expect(trip.savedPlaces[0].notes).to.equal(updateData.notes);
             });
         });
     });
