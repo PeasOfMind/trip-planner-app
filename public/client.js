@@ -249,7 +249,7 @@ function deletePlaceFromTrip(callback, id, placeId){
 //     .then(() => callback(id, true))
 // }
 
-function deletePackingItemFromTrip(callback,id, itemId){
+function deletePackingItemFromTrip(callback, id, itemId){
     fetch(`/api/trips/${id}/packingList/${itemId}`, {
         method: "DELETE",
         headers: {
@@ -283,8 +283,10 @@ function createNewUser(newInfo){
         if (ok) return responseJson;
         return Promise.reject(responseJson);
     })
-    .then(() => {
-        loginAndDisplayDash(newInfo, true);
+    .then(responseJson => {
+        user.username = responseJson.username;
+        user.authToken = responseJson.authToken;
+        getAndDisplayActiveTrips(true);
     })
     .catch(err => {
         displaySignupError(err.location, err.message);
@@ -331,12 +333,13 @@ function addAndDisplayNewTrip(){
 
 function updateAndDisplayItemDetails(inputData, id){
     const updateData = {};
-    updateData.id = inputData.attr('data-list-id');
+    updateData.id = inputData.parent('li').attr('data-list-id');
     if (updateData.id) {
         //toggles between true and false
-        updateData.packed = !(inputData.attr('data-checked') === 'true');
+        updateData.packed = !(inputData.attr('data-checked'));
         editItem(displayUpdatedItem, id, updateData);
     } else {
+        //this is a new item and needs to be added
         updateData.item = inputData.find('.js-item').val();
         inputData.find('.js-item').val('');
         updateData.packed = false;
@@ -346,10 +349,9 @@ function updateAndDisplayItemDetails(inputData, id){
 
 function displayUpdatedItem(currentItem){
     const selectedLi = $(`li[data-list-id=${currentItem.id}]`);
-    selectedLi.empty().attr('data-checked', currentItem.packed)
-    .text(currentItem.item);
-    if (currentItem.packed) selectedLi.addClass('packing-item_checked');
-    else selectedLi.removeClass('packing-item_checked');
+    selectedLi.attr('data-checked', currentItem.packed);
+    selectedLi.find('span').attr('aria-checked', currentItem.packed);
+    // .text(currentItem.item);
 
 }
 
@@ -360,11 +362,14 @@ function displayNewItem(newItem){
     if($('.js-no-items').length > 0) {
         $('#packing-list').empty().append('<h4 class="packing-header">Packing List</h4><ul id="item-list"></ul>')
     }
-    $('#item-list').append(`<div class="item-container"><li data-list-id="${newItem.id}" data-checked="${
-    newItem.packed}" ${newItem.packed ? "class=packing-item_checked" : ''
-    }>${newItem.item} </li>
-    <button class="js-delete item delete-item">\u00D7</button></div>`)
-    $('#packing-list').append('<button class="js-add item add-item"><i class="fas fa-plus-circle"></button>')
+    $('#item-list').append(`<li data-list-id="${newItem.id}" 
+    data-checked="${newItem.packed}" class="item-container">
+    <span role="checkbox" aria-checked=${newItem.packed} tabindex="0">
+    ${newItem.item} 
+    </span>
+    <button class="js-delete item delete-item" aria-label="delete item">\u00D7</button>
+    </li>`)
+    $('#packing-list').append('<button class="js-add item add-item" aria-label="add item"><i class="fas fa-plus-circle"></button>')
 }
 
 // function prefillItemForm(currentItem){
@@ -440,8 +445,8 @@ function updateAndDisplayPlaceDetails(inputData, id, placeId){
 function displayUpdatedPlace(currentPlace){
     console.log('current place is:', currentPlace);
     $(`div[data-place-id='${currentPlace.id}']`).empty()
-    .append('<button class="js-edit place edit-place"><i class="far fa-edit"></i></button>' + 
-    '<button class="js-delete place delete-place"><i class="far fa-trash-alt"></i></button>')
+    .append('<button class="js-edit place edit-place" aria-label="edit place"><i class="far fa-edit"></i></button>' + 
+    '<button class="js-delete place delete-place" aria-label="delete place"><i class="far fa-trash-alt"></i></button>')
     .append(displayOnePlace(currentPlace));
 }
 
@@ -453,10 +458,10 @@ function displayNewPlace(newPlace){
     }
     $('#saved-places').append(
         `<div class="saved-place" data-place-id="${newPlace.id}">
-        <button class="js-edit place edit-place"><i class="far fa-edit"></i></button>
-        <button class="js-delete place delete-place"><i class="far fa-trash-alt"></i></button>
+        <button class="js-edit place edit-place" aria-label="edit place"><i class="far fa-edit"></i></button>
+        <button class="js-delete place delete-place" aria-label="delete place"><i class="far fa-trash-alt"></i></button>
         ${displayOnePlace(newPlace)} </div>`)
-    .prepend('<button class="js-add place add-place"><i class="fas fa-plus-circle"></i></button>');
+    .prepend('<button class="js-add place add-place" aria-label="add place"><i class="fas fa-plus-circle"></i></button>');
 }
 
 //update trip details in database
@@ -533,7 +538,7 @@ function getAndDisplayDetailsForm(selectedId){
 
 function displayUpdatedTripDetails(currentTrip){
     $('#trip-details').empty().append(displayTripDetails(currentTrip))
-    .prepend('<button class="js-edit details"><i class="far fa-edit"></i></button>');
+    .prepend('<button class="js-edit details" aria-label="edit details"><i class="far fa-edit"></i></button>');
 }
 
 // function generateListButtons(currentTrip){
@@ -549,9 +554,12 @@ function displayPackingList(currentTrip, shouldEdit){
     if (currentTrip.packingList.length > 0){
         for (let index = 0; index < currentTrip.packingList.length; index++){
             let listItem = currentTrip.packingList[index]; 
-            listArray.push(`<div class="item-container"><li data-list-id="${listItem.id}" data-checked="${
-        listItem.packed}" ${listItem.packed ? "class=packing-item_checked" : ''}>${listItem.item}</li>
-        ${shouldEdit ? '<button class="js-delete item delete-item">\u00D7</button>' : ''}</div>`)
+            listArray.push(`
+            <li data-list-id="${listItem.id}" data-checked="${listItem.packed}" class="item-container">
+            <span role="checkbox" aria-checked=${listItem.packed} tabindex="0">
+            ${listItem.item}</span>
+            ${shouldEdit ? '<button class="js-delete item delete-item" aria-label="delete item">\u00D7</button>' : ''}
+            </li>`)
         }
         const listHTML = listArray.join('');
         return `<h4 class="packing-header">Packing List</h4>
@@ -571,8 +579,8 @@ function displaySavedPlaces(currentTrip, shouldEdit){
         for (let index = 0; index < currentTrip.savedPlaces.length; index++) {
             let place = currentTrip.savedPlaces[index];
             placeHTML.push(`<div class="saved-place" data-place-id="${place.id}">
-            ${shouldEdit ? `<button class="js-edit place edit-place"><i class="far fa-edit"></i></button>
-            <button class="js-delete place delete-place"><i class="far fa-trash-alt"></i></button>`: ''}
+            ${shouldEdit ? `<button class="js-edit place edit-place" aria-label="edit place"><i class="far fa-edit"></i></button>
+            <button class="js-delete place delete-place" aria-label="delete place"><i class="far fa-trash-alt"></i></button>`: ''}
             ${displayOnePlace(place)}
             </div>`);
         }
@@ -594,15 +602,15 @@ function displaySelectedTrip(currentTrip, shouldEdit){
     $('#active-trips').empty();
     $('#current-trip').attr('data-id', currentTrip.id);
     $('#current-trip').html(`<div id="trip-details">
-    ${shouldEdit ? '<button class="js-edit details"><i class="far fa-edit"></i></button>' : ''}
+    ${shouldEdit ? '<button class="js-edit details" aria-label="edit details"><i class="far fa-edit"></i></button>' : ''}
     ${displayTripDetails(currentTrip)}
     </div>
     <div id="saved-places">
-    ${shouldEdit ? '<button class="js-add place add-place"><i class="fas fa-plus-circle"></i></button>': ''}
+    ${shouldEdit ? '<button class="js-add place add-place" aria-label="add place"><i class="fas fa-plus-circle"></i></button>': ''}
     ${displaySavedPlaces(currentTrip, shouldEdit)}
     </div>
     <div id="packing-list">
-    ${shouldEdit ? '<button class="js-add item add-item"><i class="fas fa-plus-circle"></i></button>': ''}
+    ${shouldEdit ? '<button class="js-add item add-item" aria-label="add item"><i class="fas fa-plus-circle"></i></button>': ''}
     ${displayPackingList(currentTrip, shouldEdit)}
     </div>
     ${shouldEdit ? '<button class="view-trip">View Trip</button>': '<button class="edit-trip">Edit Trip</button>'}
@@ -666,53 +674,53 @@ function getAndDisplayActiveTrips(isNewUser){
 function displayDashboardError(errMessage){
     //reset previous errors
     $('.error-msg').remove();
-    $('#active-trips').append(`<p class="error-msg">
+    $('#active-trips').append(`<p class="error-msg" aria-live="assertive">
     <i class="fas fa-exclamation-circle"></i> ${errMessage}</p>`);
 }
 
 function displayTripError(errMessage, id){
     //reset previous errors
     $('.error-msg').remove();
-    $(`${id ? `div[data-id=${id}]` : '.js-details-form'}`).append(`<p class="error-msg">
+    $(`${id ? `div[data-id=${id}]` : '.js-details-form'}`).append(`<p class="error-msg" aria-live="assertive">
     <i class="fas fa-exclamation-circle"></i> ${errMessage}</p>`);
 }
 
 function displayPlaceError(errMessage){
     //reset previous errors
     $('.error-msg').remove();
-    $('#saved-places').append(`<p class="error-msg">
+    $('#saved-places').append(`<p class="error-msg" aria-live="assertive">
     <i class="fas fa-exclamation-circle"></i> ${errMessage}</p>`);
 }
 
 function displayItemError(errMessage){
     //reset previous errors
     $('.error-msg').remove();
-    $('#item-list').after(`<p class="error-msg">
+    $('#item-list').after(`<p class="error-msg" aria-live="assertive">
     <i class="fas fa-exclamation-circle"></i> ${errMessage}</p>`);
 }
 
 function displaySignupError(errLocation, errMessage){
     //reset previous errors
-    $('#js-new-password').removeClass('error-field');
-    $('#js-confirm-password').removeClass('error-field');
+    $('.js-new-password').removeClass('error-field');
+    $('.js-confirm-password').removeClass('error-field');
     $('.error-msg').remove();
     if (errLocation === 'username'){
-        $('#js-new-username').addClass('error-field');
+        $('.js-new-username').addClass('error-field').attr('aria-invalid', false);
     } else {
-        $('#js-new-password').val('').addClass('error-field');
-        $('#js-confirm-password').val('').addClass('error-field');
+        $('.js-new-password').val('').addClass('error-field').attr('aria-invalid', false);
+        $('.js-confirm-password').val('').addClass('error-field').attr('aria-invalid', false);
     }
-    $('#js-submit-signup').before(`<p class="error-msg">
+    $('#js-submit-signup').before(`<p class="error-msg" aria-live="assertive">
     <i class="fas fa-exclamation-circle"></i> ${errLocation}: ${errMessage}</p>`)
 }
 
 function displayLoginError(){
     //reset error messages
     $('.error-msg').remove();
-    $('#js-password')
-    .after('<p class="error-msg"><i class="fas fa-exclamation-circle"></i> Incorrect username and/or password</p>')
-    .addClass('error-field');
-    $('#js-username').addClass('error-field');
+    $('.js-password')
+    .after('<p class="error-msg" aria-live="assertive"><i class="fas fa-exclamation-circle"></i> Incorrect username and/or password</p>')
+    .addClass('error-field').attr('aria-invalid', false);
+    $('.js-username').addClass('error-field').attr('aria-invalid', false);
 }
 
 function displayLogin(){
@@ -732,26 +740,24 @@ function watchForSubmits(){
     //check if a new trip is submitted
     $('#active-trips').on('submit','.js-details-form',(event) => {
         event.preventDefault();
+        //remove any previously marked errors
+        $('.js-details-form').find('.error-field').removeClass('error-field').attr('aria-invalid', false);
+        //remove any previous error message
+        $('.js-details-form').find('.error-msg').remove();
+
         const missingField = validateDetailsForm();
         if (missingField){
-            //remove any previously marked error fields
-            $('.js-details-form').find('.error-field').removeClass('error-field');
-            $(missingField).addClass('error-field');
-            //remove any previous error message
-            $('.js-details-form').find('.error-msg').remove();
-            //add current error message
-            $('#js-submit-details').before(`<p class="error-msg">
+            $(missingField).addClass('error-field').attr('aria-invalid', true);
+            //add current error message for missing field
+            $('#js-submit-details').before(`<p class="error-msg" aria-live="assertive">
             <i class="fas fa-exclamation-circle"></i> ${$(missingField).prev("label").html()} must not be empty</p>`)
         } else {
-            if ($('#js-end-date').val() > $('#js-start-date').val()){
-                addAndDisplayNewTrip();
+            if ($('#js-end-date').val() < $('#js-start-date').val()){
+                //add error message for end date being earlier than start date
+                $('#js-end-date').addClass('error-field').attr('aria-invalid', true);
+                $('#js-submit-details').before('<p class="error-msg" aria-live="assertive"><i class="fas fa-exclamation-circle"></i> End date must be after start date</p>');
             } else {
-                //remove any previously marked error fields
-                $('.js-details-form').find('.error-field').removeClass('error-field');
-                $('#js-end-date').addClass('error-field');
-                //remove any previous error message
-                $('.js-details-form').find('.error-msg').remove();
-                $('#js-submit-details').before('<p class="error-msg"><i class="fas fa-exclamation-circle"></i> End date must be after start date</p>');
+                addAndDisplayNewTrip();
             }
         }
     });
@@ -770,7 +776,7 @@ function watchForSubmits(){
             //remove any previous error message
             $('.js-details-form').find('.error-msg').remove();
             //add current error message
-            $('#js-submit-details').before(`<p class="error-msg">
+            $('#js-submit-details').before(`<p class="error-msg" aria-live="assertive">
             <i class="fas fa-exclamation-circle"></i> ${$(missingField).prev("label").html()} must not be empty</p>`)
         } else {
             //check if end date is greater than start date
@@ -778,7 +784,7 @@ function watchForSubmits(){
                 getSelectedTrip(updateAndDisplayTripDetails, selectedId);
             } else {
                 $('#js-end-date').addClass('error-field');
-                $('#js-submit-details').before('<p class="error-msg"><i class="fas fa-exclamation-circle"></i> End date must be after start date</p>');
+                $('#js-submit-details').before('<p class="error-msg" aria-live="assertive"><i class="fas fa-exclamation-circle"></i> End date must be after start date</p>');
             }
         }
     });
@@ -794,7 +800,7 @@ function watchForSubmits(){
             fieldToValidate.addClass('error-field');
             //remove any previous error message
             selected.find('.error-msg').remove();
-            selected.find('.js-submit-place').before('<p class="error-msg"><i class="fas fa-exclamation-circle"></i> Place Name must not be empty</p>')
+            selected.find('.js-submit-place').before('<p class="error-msg" aria-live="assertive"><i class="fas fa-exclamation-circle"></i> Place Name must not be empty</p>')
         } else {
             updateAndDisplayPlaceDetails(selected, selectedId, placeId);
         }
@@ -811,7 +817,7 @@ function watchForSubmits(){
             fieldToValidate.addClass('error-field');
             //remove any previous error message
             selected.find('.error-msg').remove();
-            selected.append('<p class="error-msg"><i class="fas fa-exclamation-circle"></i> Packing list entry must not be empty</p>')
+            selected.append('<p class="error-msg" aria-live="assertive"><i class="fas fa-exclamation-circle"></i> Packing list entry must not be empty</p>')
         } else {
             updateAndDisplayItemDetails(selected, selectedId);
         }
@@ -846,7 +852,7 @@ function watchForDeletes(){
             }
         } else if (selected.hasClass('item')){
             //delete an item on the packing list and refresh page
-            const itemIndex = selected.prev('li').attr('data-list-id');
+            const itemIndex = selected.parent('li').attr('data-list-id');
             deletePackingItemFromTrip(getAndDisplaySelectedTrip, selectedId, itemIndex);
         }
     });
@@ -874,7 +880,7 @@ function watchForEdits(){
     });
 
     //check if a packing list li item being clicked (completed)
-    $('#current-trip').on('click', 'li', (event) => {
+    $('#current-trip').on('click', 'span', (event) => {
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
         //toggles the packed value between true and false
@@ -900,9 +906,9 @@ function watchForCancels(){
             //just remove the form and show the original trip details
             getSelectedTrip(displayUpdatedTripDetails, selectedId);
         } else if (selectedForm.hasClass('add-item-form')){
-            $('#packing-list').prepend('<button class="js-add item add-item"><i class="fas fa-plus-circle"></i></button>');
+            $('#packing-list').prepend('<button class="js-add item add-item" aria-label="add item"><i class="fas fa-plus-circle"></i></button>');
         } else if (selectedForm.hasClass('add-place-form')){
-            $('#saved-places').prepend('<button class="js-add place add-place"><i class="fas fa-plus-circle"></i></button>');
+            $('#saved-places').prepend('<button class="js-add place add-place" aria-label="add place"><i class="fas fa-plus-circle"></i></button>');
         } else if (selectedForm.hasClass('edit-place-form')){
             const placeId = selectedForm.parent('div').attr('data-place-id');
             console.log('getting original place data to show up')
@@ -981,44 +987,45 @@ function watchLogin(){
     $('.js-login-form').submit(event => {
         event.preventDefault();
 
-        const username = $('#js-username').val();
-        const password = $('#js-password').val();
+        const username = $('.js-username').val();
+        const password = $('.js-password').val();
 
-        $('#js-username').val('');
-        $('#js-password').val('');
+        $('.js-username').val('');
+        $('.js-password').val('');
 
         loginAndDisplayDash({username, password});
     });
 
-    $('#signup-redirect').click(event => {
+    $('#signup-redirect').click(() => {
         //reset the login form
-        $('#js-username').val('').removeClass('error-field');
-        $('#js-password').val('').removeClass('error-field');
+        $('.js-username').val('').removeClass('error-field').attr('aria-invalid', false);
+        $('.js-password').val('').removeClass('error-field').attr('aria-invalid', false);
         $('#login-page').prop('hidden', true);
         $('#signup-page').prop('hidden', false);
     });
+}
 
+function watchSignup(){
     $('.js-signup-form').submit(event => {
         event.preventDefault();
 
-        const newUsername = $('#js-new-username').val();
-        const newPassword = $('#js-new-password').val();
-        const confirmPassword = $('#js-confirm-password').val();
+        const newUsername = $('.js-new-username').val();
+        const newPassword = $('.js-new-password').val();
+        const confirmPassword = $('.js-confirm-password').val();
         
+        //reset previous errors
+        $('.js-new-username').removeClass('error-field').attr('aria-invalid', false);
+        $('.js-new-password').val('').removeClass('error-field').attr('aria-invalid', false);
+        $('.js-confirm-password').val('').removeClass('error-field').attr('aria-invalid', false);
+        $('.error-msg').remove();
+
         if(newPassword !== confirmPassword){
-            //reset previous errors
-            $('#js-new-password').removeClass('error-field');
-            $('#js-confirm-password').removeClass('error-field');
-            $('.error-msg').remove();
             //add current error
-            $('#js-new-password').val('').addClass('error-field');
-            $('#js-confirm-password').val('').addClass('error-field')
-            .after('<p class="error-msg"><i class="fas fa-exclamation-circle"></i> Passwords do not match. Try again.</p>');
+            $('.js-new-password').addClass('error-field').attr('aria-invalid', true);
+            $('.js-confirm-password').addClass('error-field').attr('aria-invalid', true)
+            .after('<p class="error-msg" aria-live="assertive"><i class="fas fa-exclamation-circle"></i> Passwords do not match. Try again.</p>');
         } else {
-            $('#js-new-username').val('');
-            $('#js-new-password').val('').removeClass('error-field');
-            $('#js-confirm-password').val('').removeClass('error-field');
-            $('.error-msg').remove();
+            $('.js-new-username').val('');
             const signupInfo = {};
             if (newUsername) signupInfo.username = newUsername;
             if (newPassword) signupInfo.password = newPassword;
@@ -1028,9 +1035,9 @@ function watchLogin(){
 
     $('#login-redirect').click(() => {
         //reset the signup form
-        $('#js-new-username').val('').removeClass('error-field');
-        $('#js-new-password').val('').removeClass('error-field');
-        $('#js-confirm-password').val('').removeClass('error-field');
+        $('.js-new-username').val('').removeClass('error-field').attr('aria-invalid', false);
+        $('.js-new-password').val('').removeClass('error-field').attr('aria-invalid', false);
+        $('.js-confirm-password').val('').removeClass('error-field').attr('aria-invalid', false);
         $('.error-msg').remove();
         //switch to login page
         $('#login-page').prop('hidden', false);
@@ -1052,6 +1059,7 @@ function watchLogout(){
 //run everything
 $(function (){
     watchLogin();
+    watchSignup();
     watchDashboard();
     watchTripPage();
     watchLogout();

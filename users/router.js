@@ -2,6 +2,7 @@
 
 const express = require('express');
 const {User} = require('./models');
+const {createAuthToken} = require('../auth');
 const router = express.Router();
 
 
@@ -82,7 +83,9 @@ router.post('/', (req, res) => {
     })
     .then(hash => User.create({username, password: hash}))
     .then(user => {
-        return res.status(201).json(user.serialize());
+        const serializedUser = user.serialize();
+        serializedUser.authToken = createAuthToken(serializedUser);
+        return res.status(201).json(serializedUser);
     })
     .catch(err => {
         console.log(err);

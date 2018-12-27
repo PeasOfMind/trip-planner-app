@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-    <header>
+    <header role="banner">
         <h1>Plan Your Trip</h1>
     </header>
-    <main>
+    <main role="main"> 
         <div id="login-page">
             <form id="login" class="js-login-form">
                 <label for="username">Username</label>
@@ -32,11 +32,11 @@
         <div id="signup-page" hidden>
             <form id="signup-form" class="js-signup-form">
                 <label for="new-username">Username</label>
-                <input type="text" name="new-username" id="js-new-username">
+                <input type="text" id="new-username" class="js-new-username">
                 <label for="new-password">Password</label>
-                <input type="password" name="new-password" id="js-new-password">
+                <input type="password" id="new-password" class="js-new-password">
                 <label for="confirm-password">Confirm Password</label>
-                <input type="password" name="confirm-password" id="js-confirm-password">
+                <input type="password" id="confirm-password" class="js-confirm-password">
                 <input type="submit" id="js-submit-signup" value="Sign Up for Account">
             </form>
             <button id="login-redirect">Back To Login Page</button>
