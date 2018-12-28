@@ -29,4 +29,4 @@ router.post('/refresh', jwtAuth, (req, res) => {
   res.json({authToken, username: req.user.username});
 });
 
-module.exports = {router};
+module.exports = {router, createAuthToken};

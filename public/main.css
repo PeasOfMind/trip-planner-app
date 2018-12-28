@@ -85,15 +85,6 @@ button:hover, input[type="submit"]:hover, input[type="button"]:hover {
     background-color: #E0E0E0;
 }
 
-li {
-    padding: 5px 0;
-}
-
-li:hover {
-    background: #E0E0E0;
-}
-
-
 i:hover {
     color:#43c0ac;
 }
@@ -129,7 +120,7 @@ i:hover {
 
 .delete-trip:hover {
     color: white;
-    background-color: red;
+    background-color: #EC130E;
 }
 
 #trip-details {
@@ -200,7 +191,9 @@ i:hover {
 }
 
 .edit-place {
-    right: 25px;
+    right: 30px;
+    padding-right: 0;
+    margin-right: 7px;
 }
 
 .delete-place {
@@ -208,11 +201,11 @@ i:hover {
 }
 
 .delete-place > i:hover {
-    color: red;
+    color: #EC130E;
 }
 
 .place-notes {
-    margin-right: 60px;
+    margin-right: 65px;
 }
 
 #packing-list {
@@ -233,6 +226,8 @@ i:hover {
     display: flex;
     border-bottom: 1px dashed black;
     justify-content: space-between;
+    align-items: stretch;
+    margin-bottom: 2px;
 }
 
 .item-container > .delete-item {
@@ -240,16 +235,20 @@ i:hover {
     padding: 0 10px;
     border: none;
     margin: 0;
-    
 }
 
-.item-container > li {
+.item-container > span {
     flex-grow: 1;
+    padding-top: 5px;
+    margin-right: 5px;
 }
 
+.item-container > span:hover {
+    background: #E0E0E0;
+}
 .item-container > .delete-item:hover {
     color: white;
-    background-color: red;
+    background-color: #EC130E;
 }
 
 .form-container {
@@ -272,7 +271,7 @@ i:hover {
     background: black;
 } */
 
-.packing-item_checked {
+[aria-checked="true"] {
     text-decoration: line-through;
     background: darkgrey;
     color: white;
@@ -283,12 +282,12 @@ i:hover {
 }
 
 .error-msg {
-    color: red;
+    color: #EC130E;
     font-size: 0.8em;
 }
 
 .error-field {
-    border: 1.5px solid red;
+    border: 1.5px solid #EC130E;
 }
 
 @media only screen and (min-width: 600px){

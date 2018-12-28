@@ -13,6 +13,11 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
+let user = {
+    username: null,
+    authToken: null
+}
+
 function seedTripData(){
     console.info('seeding trip data');
     const seedData = [];
@@ -52,6 +57,7 @@ function generateTripData(){
     //generate a random number of packing list entries from 1 to 10
     const listNum = Math.floor(Math.random() * 10) + 1;
     return {
+        username: user.username,
         name: faker.random.words(),
         destination: `${faker.address.city()}, ${faker.address.country()}`,
         savedPlaces: generatePlaceData(placeNum),
@@ -72,7 +78,6 @@ function tearDownDb(){
 describe('Trip API resource', function(){
     const username = 'testUser';
     const password = 'testPass123';
-    let authHeader;
 
     before(function(){
         return runServer(TEST_DATABASE_URL);
@@ -80,25 +85,17 @@ describe('Trip API resource', function(){
 
     beforeEach(function (){
         //create a user and save the authToken
-        chai.request(app)
+        return chai.request(app)
         .post('/api/users')
         .send({username, password})
         .then(response => {
-            return response.json()
-            .then(() => chai.request(app)
-                .post('api/auth/login')
-                .send({username, password}) 
-                .then(response => {
-                return response.json()
-            })
-            .then(responseJson => {
-                const authToken = responseJson.authToken;
-                authHeader = {headers: 
-                    {'Authorization': `Bearer ${authToken}`}
-                }
-            }));
+            console.log('response body is:',response.body);
+            user.username = response.body.username;
+            user.authToken = response.body.authToken;
+        })
+        .then(() => {
+            return seedTripData();
         });
-        return seedTripData();
     });
 
     afterEach(function (){
@@ -110,7 +107,7 @@ describe('Trip API resource', function(){
     });
 
     describe('Index Page', function(){
-        it.only('should return index page for the root url', function(){
+        it('should return index page for the root url', function(){
             return chai.request(app)
             .get('/')
             .then(function(res) {
@@ -121,11 +118,12 @@ describe('Trip API resource', function(){
     });
 
     describe('GET endpoint', function(){
-        it('should return all existing trips', function(){
+        it.only('should return all existing trips', function(){
             let res;
+            console.log('new user auth is:', user.authToken);
             return chai.request(app)
             .get('/api/trips')
-            .send(authHeader)
+            .set('Authorization', `Bearer ${user.authToken}`)
             .then(function(_res){
                 res = _res;
                 expect(res).to.have.status(200);
