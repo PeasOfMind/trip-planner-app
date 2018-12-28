@@ -424,6 +424,25 @@ function addItemForm(){
     </form>`);
 }
 
+function generateNewPlaceForm(){
+    return `<form class="add-place-form" js-place-form">
+    <div class="place-form-entry">
+    <label for="new-place-name">Name</label>
+    <input type="text" id="new-place-name" class="js-place-name">
+    </div>
+    <div class="place-form-entry">
+    <label for="new-address">Address</label>
+    <input type="text" id="new-address" class="js-address">
+    </div>
+    <div class="place-form-entry">
+    <label for="new-place-notes">Notes</label>
+    <textarea id="new-place-notes" class="js-place-notes" rows="2" cols="100">
+    </textarea>
+    </div>
+    <input type="submit" class="js-submit-place" value="Add Place">
+    <input type="button" class="js-remove-form" value="Cancel">
+    </form>`
+}
 
 function prefillPlaceForm(currentPlace){
     //fill in values with current place details
@@ -433,24 +452,28 @@ function prefillPlaceForm(currentPlace){
     currentForm.find('.js-place-notes').val(currentPlace.notes);
 }
 
-function generatePlaceForm(isNewPlace){
-    return `<form class="${isNewPlace ? 'add-place-form' : 'edit-place-form'} js-place-form">
+function generatePlaceForm(currentPlace){
+    const placeNameId = currentPlace.name.split(' ').join('-');
+    $(`div[data-place-id='${currentPlace.id}']`).empty().append(`
+    <form class="edit-place-form" js-place-form">
     <div class="place-form-entry">
-    <label for="place-name">Name</label>
-    <input type="text" id="place-name" class="js-place-name">
+    <label for="${placeNameId}-place-name">Name</label>
+    <input type="text" id="${placeNameId}-place-name" class="js-place-name">
     </div>
     <div class="place-form-entry">
-    <label for="address">Address</label>
-    <input type="text" id="address" class="js-address">
+    <label for="${placeNameId}-address">Address</label>
+    <input type="text" id="${placeNameId}-address" class="js-address">
     </div>
     <div class="place-form-entry">
-    <label for="place-notes">Notes</label>
-    <textarea id="place-notes" class="js-place-notes" rows="2" cols="100">
+    <label for="${placeNameId}-place-notes">Notes</label>
+    <textarea id="${placeNameId}-place-notes" class="js-place-notes" rows="2" cols="100">
     </textarea>
     </div>
-    <input type="submit" class="js-submit-place" value="${isNewPlace ? 'Add Place': 'Submit Edits'}">
+    <input type="submit" class="js-submit-place" value="Submit Edits">
     <input type="button" class="js-remove-form" value="Cancel">
-    </form>`
+    </form>
+    `)
+    prefillPlaceForm(currentPlace);
 }
 
 function prefillDetailsForm(currentTrip){
@@ -486,16 +509,10 @@ function displayDetailsForm(isNew){
 </form>`
 }
 
-//Turn the saved place into an editable form
-function getAndDisplayPlaceForm(selectedId, placeId){
-    $(`div[data-place-id='${placeId}']`).empty().append(generatePlaceForm());
-    getSelectedPlace(prefillPlaceForm, selectedId, placeId);
-}
-
 //display a new place to input
 function addPlaceForm(){
     $('#saved-places').children('.js-add').remove();
-    $('.places-header').after(generatePlaceForm(true));
+    $('.places-header').after(generateNewPlaceForm());
 }
 
 //Turn the trip details section into a editable form
@@ -817,7 +834,7 @@ function watchForEdits(){
         } else if (selected.hasClass('place')){
             //edit the place details for one place
             const placeId = selected.parent('div').attr('data-place-id');
-            getAndDisplayPlaceForm(selectedId, placeId);
+            getSelectedPlace(generatePlaceForm, selectedId, placeId);
         }
     });
 
