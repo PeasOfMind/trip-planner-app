@@ -25,8 +25,6 @@ const tripSchema = mongoose.Schema({
     username: String
 });
 
-//TODO: break out address in savedPlaces into building, street, and zipcode
-
 placeSchema.methods.serialize = function(){
     return {
         id: this._id,

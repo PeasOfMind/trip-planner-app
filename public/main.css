@@ -7,12 +7,10 @@ header {
     background: black;
     padding: 10px 20px;
     margin-bottom: 10px;
-    /* min-width: 300px; */
 }
 
 main {
     margin: 0 20px;
-    /* min-width: 280px; */
 }
 
 h1, h2, h3 {
@@ -55,8 +53,8 @@ p {
     padding: 3px 0;
 }
 
-input {
-    border: 1px solid #3E3E3E;
+input, textarea {
+    border: 1px solid darkgrey;
 }
 
 button {
@@ -107,8 +105,6 @@ i:hover {
 
 .trip-preview {
     border-radius: 5px;
-    /* color: white;
-    background-color: black; */
     padding: 5px 0;
     margin: 10px 0;
 
@@ -181,10 +177,6 @@ i:hover {
     border-bottom: 1px dashed black;
     position: relative;
 }
-
-/* .saved-place:last-child {
-    border-bottom: none;
-} */
 
 .saved-place > button {
     position: absolute;
@@ -275,11 +267,6 @@ i:hover {
     flex: 1 1 auto;
     min-width: 50px;
 }
-/* #packing-list > .js-edit {
-    right: 25px;
-    color: white;
-    background: black;
-} */
 
 [aria-checked="true"] {
     text-decoration: line-through;
