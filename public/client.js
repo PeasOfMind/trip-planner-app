@@ -336,7 +336,7 @@ function updateAndDisplayItemDetails(inputData, id){
     updateData.id = inputData.parent('li').attr('data-list-id');
     if (updateData.id) {
         //toggles between true and false
-        updateData.packed = !(inputData.attr('data-checked'));
+        updateData.packed = !(inputData.attr('aria-checked') === 'true');
         editItem(displayUpdatedItem, id, updateData);
     } else {
         //this is a new item and needs to be added
@@ -367,7 +367,7 @@ function displayNewItem(newItem){
     <span role="checkbox" aria-checked=${newItem.packed} tabindex="0">
     ${newItem.item} 
     </span>
-    <button class="js-delete item delete-item" aria-label="delete item">\u00D7</button>
+    <button class="js-delete item delete-item" aria-label="delete ${newItem.item}">\u00D7</button>
     </li>`)
     $('#packing-list').append('<button class="js-add item add-item" aria-label="add item"><i class="fas fa-plus-circle"></button>')
 }
@@ -416,7 +416,7 @@ function generatePlaceForm(isNewPlace){
     </textarea>
     </div>
     <input type="submit" class="js-submit-place" value="${isNewPlace ? 'Add Place': 'Submit Edits'}">
-    <button class="js-remove-form">Cancel</button>
+    <input type="button" class="js-remove-form" value="Cancel">
     </form>`
 }
 
@@ -445,8 +445,8 @@ function updateAndDisplayPlaceDetails(inputData, id, placeId){
 function displayUpdatedPlace(currentPlace){
     console.log('current place is:', currentPlace);
     $(`div[data-place-id='${currentPlace.id}']`).empty()
-    .append('<button class="js-edit place edit-place" aria-label="edit place"><i class="far fa-edit"></i></button>' + 
-    '<button class="js-delete place delete-place" aria-label="delete place"><i class="far fa-trash-alt"></i></button>')
+    .append(`<button class="js-edit place edit-place" aria-label="edit ${currentPlace.name} place"><i class="far fa-edit"></i></button>
+    <button class="js-delete place delete-place" aria-label="delete ${currentPlace.name} place"><i class="far fa-trash-alt"></i></button>`)
     .append(displayOnePlace(currentPlace));
 }
 
@@ -458,8 +458,8 @@ function displayNewPlace(newPlace){
     }
     $('#saved-places').append(
         `<div class="saved-place" data-place-id="${newPlace.id}">
-        <button class="js-edit place edit-place" aria-label="edit place"><i class="far fa-edit"></i></button>
-        <button class="js-delete place delete-place" aria-label="delete place"><i class="far fa-trash-alt"></i></button>
+        <button class="js-edit place edit-place" aria-label="edit ${newPlace.name} place"><i class="far fa-edit"></i></button>
+        <button class="js-delete place delete-place" aria-label="delete ${newPlace.name} place"><i class="far fa-trash-alt"></i></button>
         ${displayOnePlace(newPlace)} </div>`)
     .prepend('<button class="js-add place add-place" aria-label="add place"><i class="fas fa-plus-circle"></i></button>');
 }
@@ -538,7 +538,7 @@ function getAndDisplayDetailsForm(selectedId){
 
 function displayUpdatedTripDetails(currentTrip){
     $('#trip-details').empty().append(displayTripDetails(currentTrip))
-    .prepend('<button class="js-edit details" aria-label="edit details"><i class="far fa-edit"></i></button>');
+    .prepend('<button class="js-edit details" aria-label="edit trip details"><i class="far fa-edit"></i></button>');
 }
 
 // function generateListButtons(currentTrip){
@@ -558,7 +558,7 @@ function displayPackingList(currentTrip, shouldEdit){
             <li data-list-id="${listItem.id}" data-checked="${listItem.packed}" class="item-container">
             <span role="checkbox" aria-checked=${listItem.packed} tabindex="0">
             ${listItem.item}</span>
-            ${shouldEdit ? '<button class="js-delete item delete-item" aria-label="delete item">\u00D7</button>' : ''}
+            ${shouldEdit ? `<button class="js-delete item delete-item" aria-label="delete ${listItem.item}">\u00D7</button>` : ''}
             </li>`)
         }
         const listHTML = listArray.join('');
@@ -579,8 +579,8 @@ function displaySavedPlaces(currentTrip, shouldEdit){
         for (let index = 0; index < currentTrip.savedPlaces.length; index++) {
             let place = currentTrip.savedPlaces[index];
             placeHTML.push(`<div class="saved-place" data-place-id="${place.id}">
-            ${shouldEdit ? `<button class="js-edit place edit-place" aria-label="edit place"><i class="far fa-edit"></i></button>
-            <button class="js-delete place delete-place" aria-label="delete place"><i class="far fa-trash-alt"></i></button>`: ''}
+            ${shouldEdit ? `<button class="js-edit place edit-place" aria-label="edit ${place.name} place"><i class="far fa-edit"></i></button>
+            <button class="js-delete place delete-place" aria-label="delete ${place.name} place"><i class="far fa-trash-alt"></i></button>`: ''}
             ${displayOnePlace(place)}
             </div>`);
         }
@@ -602,7 +602,7 @@ function displaySelectedTrip(currentTrip, shouldEdit){
     $('#active-trips').empty();
     $('#current-trip').attr('data-id', currentTrip.id);
     $('#current-trip').html(`<div id="trip-details">
-    ${shouldEdit ? '<button class="js-edit details" aria-label="edit details"><i class="far fa-edit"></i></button>' : ''}
+    ${shouldEdit ? '<button class="js-edit details" aria-label="edit trip details"><i class="far fa-edit"></i></button>' : ''}
     ${displayTripDetails(currentTrip)}
     </div>
     <div id="saved-places">
