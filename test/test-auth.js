@@ -129,8 +129,6 @@ describe('Auth endpoints', function(){
                 algorithm: 'HS256',
                 subject: username,
             });
-
-            console.log(token);
     
             return chai.request(app)
             .post('/api/auth/refresh')
