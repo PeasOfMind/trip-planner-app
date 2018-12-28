@@ -443,7 +443,6 @@ function updateAndDisplayPlaceDetails(inputData, id, placeId){
 }
 
 function displayUpdatedPlace(currentPlace){
-    console.log('current place is:', currentPlace);
     $(`div[data-place-id='${currentPlace.id}']`).empty()
     .append(`<button class="js-edit place edit-place" aria-label="edit ${currentPlace.name} place"><i class="far fa-edit"></i></button>
     <button class="js-delete place delete-place" aria-label="delete ${currentPlace.name} place"><i class="far fa-trash-alt"></i></button>`)
@@ -911,7 +910,6 @@ function watchForCancels(){
             $('#saved-places').prepend('<button class="js-add place add-place" aria-label="add place"><i class="fas fa-plus-circle"></i></button>');
         } else if (selectedForm.hasClass('edit-place-form')){
             const placeId = selectedForm.parent('div').attr('data-place-id');
-            console.log('getting original place data to show up')
             getSelectedPlace(displayUpdatedPlace, selectedId, placeId);
         }
         selectedForm.remove();
@@ -986,6 +984,9 @@ function watchDashboard(){
 function watchLogin(){
     $('.js-login-form').submit(event => {
         event.preventDefault();
+        //reset the login form
+        $('.js-username').val('').removeClass('error-field').attr('aria-invalid', false);
+        $('.js-password').val('').removeClass('error-field').attr('aria-invalid', false);
 
         const username = $('.js-username').val();
         const password = $('.js-password').val();

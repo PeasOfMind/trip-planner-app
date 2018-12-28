@@ -56,7 +56,5 @@ tripSchema.methods.serialize = function(){
 }
 
 const Trip =  mongoose.model('Trip', tripSchema);
-const Place = mongoose.model('Place', placeSchema);
-const Pack = mongoose.model('Pack', packingSchema);
 
-module.exports = {Trip, Place, Pack};
+module.exports = {Trip};

@@ -199,7 +199,7 @@ router.delete('/:id', (req,res) => {
         console.log(`Deleted trip with id '${req.params.id}'`);
         res.status(204).end();
     })
-    .catch(err => res.status(500).json({message: 'Could not delete the trip'}));
+    .catch(() => res.status(500).json({message: 'Could not delete the trip'}));
 });
 
 router.delete('/:id/places/:placeId', (req,res) => {
@@ -212,7 +212,7 @@ router.delete('/:id/places/:placeId', (req,res) => {
         console.log(`Deleted saved place with id '${req.params.placeId}'`);
         res.status(204).end();
     })
-    .catch(err => res.status(500).json({message: 'Could not delete the saved place'}));
+    .catch(() => res.status(500).json({message: 'Could not delete the saved place'}));
 });
 
 // router.delete('/:id/packingList', (req, res) => {
@@ -238,7 +238,7 @@ router.delete('/:id/packingList/:listId', (req,res) => {
         console.log(`Deleted item with id '${req.params.listId}'`);
         res.status(204).end();
     })
-    .catch(err => res.status(500).json({message: 'Could not delete the item'}));
+    .catch(() => res.status(500).json({message: 'Could not delete the item'}));
 });
 
 module.exports = {router};
