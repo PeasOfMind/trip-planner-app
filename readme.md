@@ -22,6 +22,7 @@ Example of a dashboard showing all trips that the user has created and options t
 
 ### Add Trip Page:
 Form to start planning a new trip.
+
 ![Add trip form](images/add-trip.png)
 
 ### View Page:
