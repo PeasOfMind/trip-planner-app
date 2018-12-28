@@ -6,11 +6,12 @@ Create a new account and get started: https://obscure-brook-80680.herokuapp.com/
 
 ### Initial Login Page:
 Login page with an option to sign up as a new user. Also has instructions to access a test account.
-![login page](images/login-page.png){width="100px}
+<img src="images/login-page.png" width="100" title="login page" alt="login page">
+
 
 ### Signup Page:
-After an account is created successfully, user will be logged in automatically.
-![signup page](images/signup-page.png){width="100px}
+Signup page to create an account. After an account is created successfully, the user will be logged in automatically.
+<img src="images/signup-page.png" width="100" title="signup page" alt="signup page">
 
 ### Welcome Page:
 Empty dashboard that confirms account creation after signup and welcomes the new user.
@@ -35,7 +36,7 @@ Edit/add/delete options for a specific trip.
 
 ### Edit Page with Forms:
 Forms for adding or editing trip options.
-![Edit trip forms](images/edit-trip-options.png)
+![Edit trip forms](images/edit-trip-forms.png)
 
 ## Summary
 
