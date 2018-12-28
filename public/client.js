@@ -926,15 +926,13 @@ function watchDashboard(){
 function watchLogin(){
     $('.js-login-form').submit(event => {
         event.preventDefault();
-        //reset the login form
-        $('.js-username').val('').removeClass('error-field').attr('aria-invalid', false);
-        $('.js-password').val('').removeClass('error-field').attr('aria-invalid', false);
 
         const username = $('.js-username').val();
         const password = $('.js-password').val();
 
-        $('.js-username').val('');
-        $('.js-password').val('');
+        //reset the login form
+        $('.js-username').val('').removeClass('error-field').attr('aria-invalid', false);
+        $('.js-password').val('').removeClass('error-field').attr('aria-invalid', false);;
 
         loginAndDisplayDash({username, password});
     });

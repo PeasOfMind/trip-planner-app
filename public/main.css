@@ -81,11 +81,19 @@ input[type="submit"], input[type="button"] {
     margin: 5px 0 10px;
 }
 
-button:hover, input[type="submit"]:hover, input[type="button"]:hover {
+button:hover, input[type="submit"]:hover, input[type="button"]:hover,  {
+    background-color: #E0E0E0;
+}
+
+button:focus, input[type="submit"]:focus, input[type="button"]:focus,  {
     background-color: #E0E0E0;
 }
 
 i:hover {
+    color:#43c0ac;
+}
+
+.details:focus, .edit-place:focus, .add-place:focus, .add-item:focus {
     color:#43c0ac;
 }
 
@@ -118,7 +126,7 @@ i:hover {
     margin-right: 45px;
 }
 
-.delete-trip:hover {
+.delete-trip:hover, .delete-trip:focus {
     color: white;
     background-color: #EC130E;
 }
@@ -200,7 +208,7 @@ i:hover {
     right: 0;
 }
 
-.delete-place > i:hover {
+.delete-place > i:hover, .delete-place:focus {
     color: #EC130E;
 }
 
@@ -243,10 +251,10 @@ i:hover {
     margin-right: 5px;
 }
 
-.item-container > span:hover {
+.item-container > span:hover, .item-container > span:focus {
     background: #E0E0E0;
 }
-.item-container > .delete-item:hover {
+.item-container > .delete-item:hover, .item-container > .delete-item:focus {
     color: white;
     background-color: #EC130E;
 }
