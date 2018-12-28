@@ -31,8 +31,6 @@ app.use('/api/auth/', authRouter);
 
 app.use('/api/trips', tripRouter);
 
-const jwtAuth = passport.authenticate('jwt', { session: false });
-
 app.use('*', (req, res) => {
   return res.status(404).json({ message: 'Not Found' });
 });

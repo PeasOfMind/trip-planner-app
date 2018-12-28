@@ -195,10 +195,7 @@ router.put('/:id/packingList/:listId', (req, res) => {
 
 router.delete('/:id', (req,res) => {
     Trip.findByIdAndRemove(req.params.id)
-    .then(() => {
-        console.log(`Deleted trip with id '${req.params.id}'`);
-        res.status(204).end();
-    })
+    .then(() => res.status(204).end())
     .catch(() => res.status(500).json({message: 'Could not delete the trip'}));
 });
 
@@ -208,25 +205,9 @@ router.delete('/:id/places/:placeId', (req,res) => {
         trip.savedPlaces.id(req.params.placeId).remove();
         trip.save();
     })
-    .then(() => {
-        console.log(`Deleted saved place with id '${req.params.placeId}'`);
-        res.status(204).end();
-    })
+    .then(() => res.status(204).end())
     .catch(() => res.status(500).json({message: 'Could not delete the saved place'}));
 });
-
-// router.delete('/:id/packingList', (req, res) => {
-//     Trip.findById(req.params.id)
-//     .then((trip) => {
-//         trip.packingList = [];
-//         trip.save();
-//     })
-//     .then(() => {
-//         console.log(`Deleted packing list in trip '${req.params.id}'`);
-//         res.status(204).end();
-//     })
-//     .catch(err => res.status(500).json({message: 'Could not delete the packing list'}));
-// })
 
 router.delete('/:id/packingList/:listId', (req,res) => {
     Trip.findById(req.params.id)
@@ -234,10 +215,7 @@ router.delete('/:id/packingList/:listId', (req,res) => {
         trip.packingList.id(req.params.listId).remove();
         trip.save();
     })
-    .then(() => {
-        console.log(`Deleted item with id '${req.params.listId}'`);
-        res.status(204).end();
-    })
+    .then(() => res.status(204).end())
     .catch(() => res.status(500).json({message: 'Could not delete the item'}));
 });
 

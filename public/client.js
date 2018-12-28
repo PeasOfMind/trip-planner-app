@@ -5,6 +5,7 @@ const user = {
     authToken: null
 };
 
+//COMMUNICATION WITH THE DATABASE//
 function getActiveTrips(callback){
     let ok;
     fetch('/api/trips', {
@@ -236,19 +237,6 @@ function deletePlaceFromTrip(callback, id, placeId){
     })
 }
 
-// function deletePackingListFromTrip(callback, id){
-//     fetch(`/api/trips/${id}/packingList`, {
-//         method: "DELETE",
-//         headers: {
-//             'Authorization': `Bearer ${user.authToken}`
-//         }
-//     })
-//     .then(response => {
-//         if (!response.ok) throw new Error (response.statusText);
-//     })
-//     .then(() => callback(id, true))
-// }
-
 function deletePackingItemFromTrip(callback, id, itemId){
     fetch(`/api/trips/${id}/packingList/${itemId}`, {
         method: "DELETE",
@@ -316,43 +304,12 @@ function loginAndDisplayDash(loginInfo, isNewUser){
     });
 }
 
-function displayNewTrip(currentTrip){
-    $('#details-form').remove();
-    displayActiveTrips(currentTrip);
-}
-
-function addAndDisplayNewTrip(){
-    const updateData = {destination: {}, dates: {}};
-    updateData.name = $('#js-trip-name').val();
-    updateData.destination = $('#js-location').val();
-    // updateData.destination.country = $('#js-country').val();
-    updateData.dates.start = $('#js-start-date').val();
-    updateData.dates.end = $('#js-end-date').val();
-    addNewTrip(displayNewTrip, updateData);
-}
-
-function updateAndDisplayItemDetails(inputData, id){
-    const updateData = {};
-    updateData.id = inputData.parent('li').attr('data-list-id');
-    if (updateData.id) {
-        //toggles between true and false
-        updateData.packed = !(inputData.attr('aria-checked') === 'true');
-        editItem(displayUpdatedItem, id, updateData);
-    } else {
-        //this is a new item and needs to be added
-        updateData.item = inputData.find('.js-item').val();
-        inputData.find('.js-item').val('');
-        updateData.packed = false;
-        addNewItem(displayNewItem, id, updateData);
-    }
-}
+//UPDATE FUNCTIONS//
 
 function displayUpdatedItem(currentItem){
     const selectedLi = $(`li[data-list-id=${currentItem.id}]`);
     selectedLi.attr('data-checked', currentItem.packed);
     selectedLi.find('span').attr('aria-checked', currentItem.packed);
-    // .text(currentItem.item);
-
 }
 
 function displayNewItem(newItem){
@@ -372,74 +329,21 @@ function displayNewItem(newItem){
     $('#packing-list').append('<button class="js-add item add-item" aria-label="add item"><i class="fas fa-plus-circle"></button>')
 }
 
-// function prefillItemForm(currentItem){
-//     //fill in values with current item details
-//     $(`li[data-list-id=${currentItem.id}]`).find('.js-item')
-//     .val(currentItem.item);           
-// }
 
-// //display the item as an editable input
-// function getAndDisplayItemForm(id, itemId){
-//     $(`li[data-list-id=${itemId}]`).empty().append(`
-//     <form class="item-form">
-//     <input type="text" class="js-item">
-//     <input type="submit" class="js-submit-item" value="Submit Edits">
-//     </form>`);
-//     getSelectedItem(prefillItemForm, id, itemId);
-// }
-
-//display a new item to input
-function addItemForm(){
-    $('#packing-list').children('.js-add').remove();
-    $('.packing-header').after(`<form class="add-item-form item-form">
-    <div class="form-container">
-    <input type="text" class="js-item" placeholder="packing list item">
-    <input type="submit" class="js-submit-item" value="Add">
-    <input type="button" class="js-remove-form" value="Cancel">
-    </div>
-    </form>`);
-}
-
-function generatePlaceForm(isNewPlace){
-    return `<form class="${isNewPlace ? 'add-place-form' : 'edit-place-form'} js-place-form">
-    <div class="place-form-entry">
-    <label for="place-name">Name</label>
-    <input type="text" name="place-name" class="js-place-name">
-    </div>
-    <div class="place-form-entry">
-    <label for="address">Address</label>
-    <input type="text" name="address" class="js-address">
-    </div>
-    <div class="place-form-entry">
-    <label for="place-notes">Notes</label>
-    <textarea name="place-notes" class="js-place-notes" rows="2" cols="100">
-    </textarea>
-    </div>
-    <input type="submit" class="js-submit-place" value="${isNewPlace ? 'Add Place': 'Submit Edits'}">
-    <input type="button" class="js-remove-form" value="Cancel">
-    </form>`
-}
-
-//display a new place to input
-function addPlaceForm(){
-    $('#saved-places').children('.js-add').remove();
-    $('.places-header').after(generatePlaceForm(true));
-}
-
-//update place details in database
-function updateAndDisplayPlaceDetails(inputData, id, placeId){
+function updateAndDisplayItemDetails(inputData, id){
     const updateData = {};
-    updateData.name = inputData.find('.js-place-name').val();
-    updateData.address = inputData.find('.js-address').val();
-    //if user didn't provide notes, write "No Notes"
-    if (inputData.find('.js-place-notes').val() === '') updateData.notes = "No Notes";
-    else updateData.notes = inputData.find('.js-place-notes').val();
-
-    //if a placeId exists, edit place instead of adding new place
-    if (placeId) {
-        updateData.id = placeId;
-        editPlace(displayUpdatedPlace, id, placeId, updateData);
-    } else addNewPlace(displayNewPlace, id, updateData);
+    updateData.id = inputData.parent('li').attr('data-list-id');
+    if (updateData.id) {
+        //toggles between true and false
+        updateData.packed = !(inputData.attr('aria-checked') === 'true');
+        editItem(displayUpdatedItem, id, updateData);
+    } else {
+        //this is a new item and needs to be added
+        updateData.item = inputData.find('.js-item').val();
+        inputData.find('.js-item').val('');
+        updateData.packed = false;
+        addNewItem(displayNewItem, id, updateData);
+    }
 }
 
 function displayUpdatedPlace(currentPlace){
@@ -463,15 +367,64 @@ function displayNewPlace(newPlace){
     .prepend('<button class="js-add place add-place" aria-label="add place"><i class="fas fa-plus-circle"></i></button>');
 }
 
+//update place details in database
+function updateAndDisplayPlaceDetails(inputData, id, placeId){
+    const updateData = {};
+    updateData.name = inputData.find('.js-place-name').val();
+    updateData.address = inputData.find('.js-address').val();
+    //if user didn't provide notes, write "No Notes"
+    if (inputData.find('.js-place-notes').val() === '') updateData.notes = "No Notes";
+    else updateData.notes = inputData.find('.js-place-notes').val();
+
+    //if a placeId exists, edit place instead of adding new place
+    if (placeId) {
+        updateData.id = placeId;
+        editPlace(displayUpdatedPlace, id, placeId, updateData);
+    } else addNewPlace(displayNewPlace, id, updateData);
+}
+
+function displayNewTrip(currentTrip){
+    $('#details-form').remove();
+    displayActiveTrips(currentTrip);
+}
+
+function addAndDisplayNewTrip(){
+    const updateData = {destination: {}, dates: {}};
+    updateData.name = $('#js-trip-name').val();
+    updateData.destination = $('#js-location').val();
+    updateData.dates.start = $('#js-start-date').val();
+    updateData.dates.end = $('#js-end-date').val();
+    addNewTrip(displayNewTrip, updateData);
+}
+
+function displayUpdatedTripDetails(currentTrip){
+    $('#trip-details').empty().append(displayTripDetails(currentTrip))
+    .prepend('<button class="js-edit details" aria-label="edit trip details"><i class="far fa-edit"></i></button>');
+}
+
 //update trip details in database
 function updateAndDisplayTripDetails(updateTrip){
     updateTrip.name = $('#js-trip-name').val();
     updateTrip.destination = $('#js-location').val();
-    // updateTrip.destination.country = $('#js-country').val();
     updateTrip.dates.start = $('#js-start-date').val();
     updateTrip.dates.end = $('#js-end-date').val();
     editTrip(displayUpdatedTripDetails, updateTrip);
 }
+
+//FORM FUNCTIONS//
+
+//display a new item to input
+function addItemForm(){
+    $('#packing-list').children('.js-add').remove();
+    $('.packing-header').after(`<form class="add-item-form item-form">
+    <div class="form-container">
+    <input type="text" class="js-item" placeholder="packing list item">
+    <input type="submit" class="js-submit-item" value="Add">
+    <input type="button" class="js-remove-form" value="Cancel">
+    </div>
+    </form>`);
+}
+
 
 function prefillPlaceForm(currentPlace){
     //fill in values with current place details
@@ -481,29 +434,34 @@ function prefillPlaceForm(currentPlace){
     currentForm.find('.js-place-notes').val(currentPlace.notes);
 }
 
+function generatePlaceForm(isNewPlace){
+    return `<form class="${isNewPlace ? 'add-place-form' : 'edit-place-form'} js-place-form">
+    <div class="place-form-entry">
+    <label for="place-name">Name</label>
+    <input type="text" name="place-name" class="js-place-name">
+    </div>
+    <div class="place-form-entry">
+    <label for="address">Address</label>
+    <input type="text" name="address" class="js-address">
+    </div>
+    <div class="place-form-entry">
+    <label for="place-notes">Notes</label>
+    <textarea name="place-notes" class="js-place-notes" rows="2" cols="100">
+    </textarea>
+    </div>
+    <input type="submit" class="js-submit-place" value="${isNewPlace ? 'Add Place': 'Submit Edits'}">
+    <input type="button" class="js-remove-form" value="Cancel">
+    </form>`
+}
+
 function prefillDetailsForm(currentTrip){
     //fill in values with current trip details
     const startDate = new Date(currentTrip.dates.start).toISOString().split('T')[0];
     const endDate = new Date(currentTrip.dates.end).toISOString().split('T')[0];    
     $('#js-trip-name').val(currentTrip.name);
     $('#js-location').val(currentTrip.destination);
-    // $('#js-country').val(currentTrip.destination.country);
     $('#js-start-date').val(startDate);
     $('#js-end-date').val(endDate);
-}
-
-// //Add buttons to edit packing list (add, edit, delete)
-// function displayListOptions(){
-//     $('button.list').remove();
-//     $('#item-list li').append('<button class="js-edit item"><i class="far fa-edit"></i></button>' +
-//     '<button class="js-delete item"><i class="far fa-trash-alt"></i></button>');
-//     $('#packing-list').append('<button class="js-add item"><i class="fas fa-plus-circle"></i></button>');
-// }
-
-//Turn the saved place into an editable form
-function getAndDisplayPlaceForm(selectedId, placeId){
-    $(`div[data-place-id='${placeId}']`).empty().append(generatePlaceForm());
-    getSelectedPlace(prefillPlaceForm, selectedId, placeId);
 }
 
 function displayDetailsForm(isNew){
@@ -529,24 +487,25 @@ function displayDetailsForm(isNew){
 </form>`
 }
 
+//Turn the saved place into an editable form
+function getAndDisplayPlaceForm(selectedId, placeId){
+    $(`div[data-place-id='${placeId}']`).empty().append(generatePlaceForm());
+    getSelectedPlace(prefillPlaceForm, selectedId, placeId);
+}
+
+//display a new place to input
+function addPlaceForm(){
+    $('#saved-places').children('.js-add').remove();
+    $('.places-header').after(generatePlaceForm(true));
+}
+
 //Turn the trip details section into a editable form
 function getAndDisplayDetailsForm(selectedId){
     $('#trip-details').empty().append(`${displayDetailsForm(false)}`)
     getSelectedTrip(prefillDetailsForm, selectedId);
 }
 
-function displayUpdatedTripDetails(currentTrip){
-    $('#trip-details').empty().append(displayTripDetails(currentTrip))
-    .prepend('<button class="js-edit details" aria-label="edit trip details"><i class="far fa-edit"></i></button>');
-}
-
-// function generateListButtons(currentTrip){
-//     if(currentTrip.packingList.length > 0){
-//         $('#packing-list').prepend('<button class="js-delete list delete-list"><i class="far fa-trash-alt"></i></button>');
-//     } else {
-//         $('#packing-list').prepend('<button class="js-add item add-list"><i class="fas fa-plus-circle"></i></button>');
-//     }
-// }
+//DISPLAY FUNCTIONS//
 
 function displayPackingList(currentTrip, shouldEdit){
     let listArray = [];
@@ -596,7 +555,6 @@ function displayTripDetails(currentTrip){
 }
 
 //Displays the current trip that the user has selected
-
 function displaySelectedTrip(currentTrip, shouldEdit){
     $('#active-trips').empty();
     $('#current-trip').attr('data-id', currentTrip.id);
@@ -658,17 +616,14 @@ function getAndDisplayActiveTrips(isNewUser){
     getActiveTrips(displayActiveTrips);
 }
 
-// function displaySignupForm(){
-//     $('#login-page').empty().append(`<form id="signup-form" class="js-signup-form">
-//     <label for="new-username">Username</label>
-//     <input type="text" name="new-username" id="js-new-username">
-//     <label for="new-password">Password</label>
-//     <input type="text" name="new-password" id="js-new-password">
-//     <label for="confirm-password">Confirm Password</label>
-//     <input type="text" name="confirm-password" id="js-confirm-password">
-//     <input type="submit" id="js-submit-signup" value="Sign Up for Account">
-// </form>`)
-// }
+function displayLogin(){
+    $('#active-trips').empty().prop('hidden', true);
+    $('#current-trip').empty().prop('hidden', true);        
+    $('#logout-button').prop('hidden', true);
+    $('#login-page').prop('hidden', false);
+}
+
+//DISPLAY ERROR FUNCTIONS//
 
 function displayDashboardError(errMessage){
     //reset previous errors
@@ -722,18 +677,13 @@ function displayLoginError(){
     $('.js-username').addClass('error-field').attr('aria-invalid', false);
 }
 
-function displayLogin(){
-    $('#active-trips').empty().prop('hidden', true);
-    $('#current-trip').empty().prop('hidden', true);        
-    $('#logout-button').prop('hidden', true);
-    $('#login-page').prop('hidden', false);
-}
-
 function validateDetailsForm(){
     const requiredFields = ['#js-trip-name', '#js-location','#js-start-date', '#js-end-date'];
     //find the first field where the input is empty. Return that field.
     return requiredFields.find(field => !( $(field).val() ));
 }
+
+//EVENT LISTENERS//
 
 function watchForSubmits(){
     //check if a new trip is submitted
@@ -810,7 +760,6 @@ function watchForSubmits(){
         event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
-        // const itemId = selected.parent('li').attr('data-list-id');
         const fieldToValidate = selected.find('.js-item');
         if ( !(fieldToValidate.val()) ){
             fieldToValidate.addClass('error-field');
@@ -868,13 +817,6 @@ function watchForEdits(){
             //edit the place details for one place
             const placeId = selected.parent('div').attr('data-place-id');
             getAndDisplayPlaceForm(selectedId, placeId);
-        // } else if (selected.hasClass('list')){
-        //     //edit the packing list
-        //     displayListOptions();
-        // } else if (selected.hasClass('item')){
-        //     //edit an item on the packing list
-        //     const itemId = selected.parent('li').attr('data-list-id');
-        //     getAndDisplayItemForm(selectedId, itemId);
         }
     });
 
