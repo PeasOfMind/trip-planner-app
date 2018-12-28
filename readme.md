@@ -6,11 +6,11 @@ Create a new account and get started: https://obscure-brook-80680.herokuapp.com/
 
 ### Initial Login Page:
 Login page with an option to sign up as a new user. Also has instructions to access a test account.
-![login page](images/login-page.png)
+![login page](images/login-page.png | width=100)
 
 ### Signup Page:
 After an account is created successfully, user will be logged in automatically.
-![signup page](images/signup-page.png)
+![signup page](images/signup-page.png | width=100)
 
 ### Welcome Page:
 Empty dashboard that confirms account creation after signup and welcomes the new user.
