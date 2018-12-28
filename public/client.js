@@ -326,7 +326,6 @@ function displayNewItem(newItem){
     </span>
     <button class="js-delete item delete-item" aria-label="delete ${newItem.item}">\u00D7</button>
     </li>`)
-    $('#packing-list').append('<button class="js-add item add-item" aria-label="add item"><i class="fas fa-plus-circle"></button>')
 }
 
 
@@ -390,10 +389,10 @@ function displayNewTrip(currentTrip){
 
 function addAndDisplayNewTrip(){
     const updateData = {destination: {}, dates: {}};
-    updateData.name = $('#js-trip-name').val();
-    updateData.destination = $('#js-location').val();
-    updateData.dates.start = $('#js-start-date').val();
-    updateData.dates.end = $('#js-end-date').val();
+    updateData.name = $('.js-trip-name').val();
+    updateData.destination = $('.js-location').val();
+    updateData.dates.start = $('.js-start-date').val();
+    updateData.dates.end = $('.js-end-date').val();
     addNewTrip(displayNewTrip, updateData);
 }
 
@@ -404,10 +403,10 @@ function displayUpdatedTripDetails(currentTrip){
 
 //update trip details in database
 function updateAndDisplayTripDetails(updateTrip){
-    updateTrip.name = $('#js-trip-name').val();
-    updateTrip.destination = $('#js-location').val();
-    updateTrip.dates.start = $('#js-start-date').val();
-    updateTrip.dates.end = $('#js-end-date').val();
+    updateTrip.name = $('.js-trip-name').val();
+    updateTrip.destination = $('.js-location').val();
+    updateTrip.dates.start = $('.js-start-date').val();
+    updateTrip.dates.end = $('.js-end-date').val();
     editTrip(displayUpdatedTripDetails, updateTrip);
 }
 
@@ -418,7 +417,7 @@ function addItemForm(){
     $('#packing-list').children('.js-add').remove();
     $('.packing-header').after(`<form class="add-item-form item-form">
     <div class="form-container">
-    <input type="text" class="js-item" placeholder="packing list item">
+    <input type="text" id="item-name" class="js-item" aria-label="add packing list item" placeholder="packing list item">
     <input type="submit" class="js-submit-item" value="Add">
     <input type="button" class="js-remove-form" value="Cancel">
     </div>
@@ -438,15 +437,15 @@ function generatePlaceForm(isNewPlace){
     return `<form class="${isNewPlace ? 'add-place-form' : 'edit-place-form'} js-place-form">
     <div class="place-form-entry">
     <label for="place-name">Name</label>
-    <input type="text" name="place-name" class="js-place-name">
+    <input type="text" id="place-name" class="js-place-name">
     </div>
     <div class="place-form-entry">
     <label for="address">Address</label>
-    <input type="text" name="address" class="js-address">
+    <input type="text" id="address" class="js-address">
     </div>
     <div class="place-form-entry">
     <label for="place-notes">Notes</label>
-    <textarea name="place-notes" class="js-place-notes" rows="2" cols="100">
+    <textarea id="place-notes" class="js-place-notes" rows="2" cols="100">
     </textarea>
     </div>
     <input type="submit" class="js-submit-place" value="${isNewPlace ? 'Add Place': 'Submit Edits'}">
@@ -458,29 +457,29 @@ function prefillDetailsForm(currentTrip){
     //fill in values with current trip details
     const startDate = new Date(currentTrip.dates.start).toISOString().split('T')[0];
     const endDate = new Date(currentTrip.dates.end).toISOString().split('T')[0];    
-    $('#js-trip-name').val(currentTrip.name);
-    $('#js-location').val(currentTrip.destination);
-    $('#js-start-date').val(startDate);
-    $('#js-end-date').val(endDate);
+    $('.js-trip-name').val(currentTrip.name);
+    $('.js-location').val(currentTrip.destination);
+    $('.js-start-date').val(startDate);
+    $('.js-end-date').val(endDate);
 }
 
 function displayDetailsForm(isNew){
     return `<form id="details-form" class="js-details-form">
     <div class="details-form-entry">
     <label for="trip-name">Trip Name</label>
-    <input type="text" name="trip-name" id="js-trip-name">
+    <input type="text" id="trip-name" class="js-trip-name">
     </div>
     <div class="details-form-entry">
     <label for="location">Location(s)</label>
-    <input type="text" name="location" id="js-location">
+    <input type="text" id="location" class="js-location">
     </div>
     <div class="details-form-entry">
     <label for="start-date">Start Date</label>
-    <input type="date" name="start-date" id="js-start-date">
+    <input type="date" id="start-date" class="js-start-date">
     </div>
     <div class="details-form-entry">
     <label for="end-date">End Date</label>
-    <input type="date" name="end-date" id="js-end-date">
+    <input type="date" id="end-date" class="js-end-date">
     </div>
     <input type="submit" id="js-submit-details" ${isNew ? `value="Add Trip"`: `value="Save Edits"`}>
     <input type="button" class="js-remove-form" value="Cancel">
@@ -678,7 +677,7 @@ function displayLoginError(){
 }
 
 function validateDetailsForm(){
-    const requiredFields = ['#js-trip-name', '#js-location','#js-start-date', '#js-end-date'];
+    const requiredFields = ['.js-trip-name', '.js-location','.js-start-date', '.js-end-date'];
     //find the first field where the input is empty. Return that field.
     return requiredFields.find(field => !( $(field).val() ));
 }
@@ -701,9 +700,9 @@ function watchForSubmits(){
             $('#js-submit-details').before(`<p class="error-msg" aria-live="assertive">
             <i class="fas fa-exclamation-circle"></i> ${$(missingField).prev("label").html()} must not be empty</p>`)
         } else {
-            if ($('#js-end-date').val() < $('#js-start-date').val()){
+            if ($('.js-end-date').val() < $('.js-start-date').val()){
                 //add error message for end date being earlier than start date
-                $('#js-end-date').addClass('error-field').attr('aria-invalid', true);
+                $('.js-end-date').addClass('error-field').attr('aria-invalid', true);
                 $('#js-submit-details').before('<p class="error-msg" aria-live="assertive"><i class="fas fa-exclamation-circle"></i> End date must be after start date</p>');
             } else {
                 addAndDisplayNewTrip();
@@ -716,23 +715,25 @@ function watchForSubmits(){
         event.preventDefault();
         const selected = $(event.currentTarget);
         const selectedId = selected.parents('#current-trip').attr('data-id');
+
+        //remove any previously marked error fields
+        $('.js-details-form').find('.error-field').removeClass('error-field');
+        //remove any previous error message
+        $('.js-details-form').find('.error-msg').remove();
+        
         //check that no fields are empty
         const missingField = validateDetailsForm();
         if (missingField){
-            //remove any previously marked error fields
-            $('.js-details-form').find('.error-field').removeClass('error-field');
             $(missingField).addClass('error-field');
-            //remove any previous error message
-            $('.js-details-form').find('.error-msg').remove();
             //add current error message
             $('#js-submit-details').before(`<p class="error-msg" aria-live="assertive">
             <i class="fas fa-exclamation-circle"></i> ${$(missingField).prev("label").html()} must not be empty</p>`)
         } else {
             //check if end date is greater than start date
-            if ($('#js-end-date').val() > $('#js-start-date').val()){
+            if ($('.js-end-date').val() > $('.js-start-date').val()){
                 getSelectedTrip(updateAndDisplayTripDetails, selectedId);
             } else {
-                $('#js-end-date').addClass('error-field');
+                $('.js-end-date').addClass('error-field');
                 $('#js-submit-details').before('<p class="error-msg" aria-live="assertive"><i class="fas fa-exclamation-circle"></i> End date must be after start date</p>');
             }
         }

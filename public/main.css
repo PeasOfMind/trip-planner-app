@@ -56,7 +56,7 @@ p {
 }
 
 input {
-    border: 1px solid darkgrey;
+    border: 1px solid #3E3E3E;
 }
 
 button {
@@ -81,19 +81,15 @@ input[type="submit"], input[type="button"] {
     margin: 5px 0 10px;
 }
 
-button:hover, input[type="submit"]:hover, input[type="button"]:hover,  {
+button:hover, input[type="submit"]:hover, input[type="button"]:hover  {
     background-color: #E0E0E0;
 }
 
-button:focus, input[type="submit"]:focus, input[type="button"]:focus,  {
+button:focus, input[type="submit"]:focus, input[type="button"]:focus  {
     background-color: #E0E0E0;
 }
 
 i:hover {
-    color:#43c0ac;
-}
-
-.details:focus, .edit-place:focus, .add-place:focus, .add-item:focus {
     color:#43c0ac;
 }
 
@@ -248,15 +244,21 @@ i:hover {
 .item-container > span {
     flex-grow: 1;
     padding-top: 5px;
+    padding-bottom: 5px;
     margin-right: 5px;
 }
 
 .item-container > span:hover, .item-container > span:focus {
     background: #E0E0E0;
+    color: black;
 }
 .item-container > .delete-item:hover, .item-container > .delete-item:focus {
     color: white;
     background-color: #EC130E;
+}
+
+.details:focus, .edit-place:focus, .add-place:focus, .add-item:focus {
+    color:#43c0ac;
 }
 
 .form-container {
@@ -281,7 +283,7 @@ i:hover {
 
 [aria-checked="true"] {
     text-decoration: line-through;
-    background: darkgrey;
+    background: #767676;
     color: white;
 }
 
