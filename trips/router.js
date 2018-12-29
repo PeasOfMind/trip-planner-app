@@ -171,7 +171,25 @@ router.post('/:id/packingList', (req, res) => {
         console.error(err);
         res.status(500).json({message: 'Packing list details could not be updated'});
     });
-})
+});
+
+router.put('/:id/packingList/:listId', (req, res) => {
+    Trip.findById(req.params.id)
+    .then(trip => {
+        if (trip && req.params.listId && req.body.id && req.params.listId === req.body.id){
+            const editedList = trip.packingList.id(req.body.id);
+            Object.keys(req.body).forEach(field => editedList[field] = req.body[field]);
+            trip.save();
+            return trip.packingList.id(req.body.id);
+        }
+        return res.status(404).json({message: 'Could not find trip id or item id'});
+    })
+    .then(() => res.status(204).end())
+    .catch(err => {
+        console.err(err);
+        res.status(500).json({message: 'Trip details could not be updated'});
+    });
+});
 
 router.delete('/:id', (req,res) => {
     Trip.findByIdAndRemove(req.params.id)
