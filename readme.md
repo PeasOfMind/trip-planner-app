@@ -52,7 +52,7 @@ Forms for adding or editing trip options.\
 
 ## Summary
 
-Plan Your Trip seeks to provide be a centralized location for users to collect and organize information to help them prepare for their upcoming trips.
+Plan Your Trip seeks to provide a centralized location for users to collect and organize information to help them prepare for their upcoming trips.
 
 Built with: HTML, CSS, Javascript, jQuery, Node.js, Express, Passport, Mongoose, MongoDB
 
