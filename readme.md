@@ -32,11 +32,6 @@ View the details of a particular trip including location(s), dates, bookmarked p
 Edit/add/delete options for a specific trip.\
 ![Edit trip details](images/edit-trip.png)
 
----
-
-### Edit Page with Forms:
-Forms for adding or editing trip options.\
-![Edit trip forms](images/edit-trip-forms.png)
 
 ## Summary
 
