@@ -16,21 +16,9 @@ Signup page to create an account. After an account is created successfully, the 
 
 ---
 
-### Welcome Page:
-Empty dashboard that confirms account creation after signup and welcomes the new user.<br/>
-![welcome page](images/welcome.png)
-
----
-
 ### Dashboard:
 Example of a dashboard showing all trips that the user has created and options to view/edit/delete each trip.\
 ![dashboard with list of trips](images/dashboard.png)
-
----
-
-### Add Trip Page:
-Form to start planning a new trip.\
-![Add trip form](images/add-trip.png)
 
 ---
 
