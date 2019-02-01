@@ -18,7 +18,7 @@ Signup page to create an account. After an account is created successfully, the 
 
 ### Dashboard:
 Example of a dashboard showing all trips that the user has created and options to view/edit/delete each trip.\
-![dashboard with list of trips](images/dashboard.png)
+<img src="images/dashboard.png" width="500" title="dashboard" alt="dashboard showing list of trips">
 
 ---
 
