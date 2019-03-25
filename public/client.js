@@ -425,7 +425,7 @@ function addItemForm(){
 }
 
 function generateNewPlaceForm(){
-    return `<form class="add-place-form" js-place-form">
+    return `<form class="add-place-form js-place-form">
     <div class="place-form-entry">
     <label for="new-place-name">Name</label>
     <input type="text" id="new-place-name" class="js-place-name">
