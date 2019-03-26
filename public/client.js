@@ -455,7 +455,7 @@ function prefillPlaceForm(currentPlace){
 function generatePlaceForm(currentPlace){
     const placeNameId = currentPlace.name.split(' ').join('-');
     $(`div[data-place-id='${currentPlace.id}']`).empty().append(`
-    <form class="edit-place-form" js-place-form">
+    <form class="edit-place-form js-place-form">
     <div class="place-form-entry">
     <label for="${placeNameId}-place-name">Name</label>
     <input type="text" id="${placeNameId}-place-name" class="js-place-name">
